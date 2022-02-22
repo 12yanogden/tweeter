@@ -50,7 +50,7 @@ public class StatusDialogFragment extends AppCompatDialogFragment {
                 .setPositiveButton("POST STATUS", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        observer.onStatusPosted(post.getText().toString());
+                        observer.postStatus(post.getText().toString());
                     }
                 });
 
@@ -99,7 +99,7 @@ public class StatusDialogFragment extends AppCompatDialogFragment {
     }
 
     public interface Observer {
-        void onStatusPosted(String post);
+        void postStatus(String post);
     }
 
 }

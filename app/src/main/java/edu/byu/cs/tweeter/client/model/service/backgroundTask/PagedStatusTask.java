@@ -9,7 +9,7 @@ import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.util.Pair;
 
-public abstract class PagedStatusTask  extends PagedTask<Status> {
+public class PagedStatusTask  extends PagedTask<Status> {
     public PagedStatusTask(AuthToken authToken, User targetUser, int limit, Status lastItem, Handler messageHandler) {
         super(authToken, targetUser, limit, lastItem, messageHandler);
     }

@@ -34,7 +34,7 @@ public class RegisterPresenter extends AuthenticatePresenter {
     public void register(String firstName, String lastName, String alias, String password, Bitmap image) {
         String imageURL = imageToURL(image);
 
-        userService.register(firstName, lastName, alias, password, imageURL, new AuthenticateObserver(this, "register"));
+        getUserService().register(firstName, lastName, alias, password, imageURL, new AuthenticateObserver(this, "register"));
     }
 
     private String imageToURL(Bitmap image) {

@@ -8,6 +8,6 @@ public class LoginPresenter extends AuthenticatePresenter {
     }
 
     public void login(String alias, String password) {
-        userService.login(alias, password, new AuthenticateObserver(this, "login"));
+        getUserService().login(alias, password, new AuthenticateObserver(this, "login"));
     }
 }

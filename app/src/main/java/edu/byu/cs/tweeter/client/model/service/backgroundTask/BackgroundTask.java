@@ -19,7 +19,7 @@ public abstract class BackgroundTask implements Runnable {
     /**
      * Message handler that will receive task results.
      */
-    private Handler messageHandler;
+    private final Handler messageHandler;
 
     public BackgroundTask(Handler messageHandler) {
         this.messageHandler = messageHandler;

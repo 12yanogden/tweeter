@@ -7,11 +7,15 @@ public abstract class ViewPresenter {
         void displayToast(String message);
     }
 
-    protected UserService userService;
-
-    public ViewPresenter() {
-        this.userService = new UserService();
-    }
+    private UserService userService;
 
     public abstract <V extends View> V getView();
+
+    protected UserService getUserService() {
+        if (userService == null) {
+            userService = new UserService();
+        }
+
+        return userService;
+    }
 }

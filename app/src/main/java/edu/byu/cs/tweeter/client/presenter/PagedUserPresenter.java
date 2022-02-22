@@ -4,11 +4,17 @@ import edu.byu.cs.tweeter.client.model.service.FollowService;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public abstract class PagedUserPresenter extends PagedPresenter<User> {
-    protected final FollowService followService;
+    protected FollowService followService;
 
     public PagedUserPresenter(PagedView<User> view) {
         super(view);
+    }
 
-        this.followService = new FollowService();
+    protected FollowService getFollowService() {
+        if (followService == null) {
+            followService = new FollowService();
+        }
+
+        return followService;
     }
 }

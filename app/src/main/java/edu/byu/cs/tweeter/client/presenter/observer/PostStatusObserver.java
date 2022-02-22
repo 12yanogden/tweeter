@@ -10,6 +10,6 @@ public class PostStatusObserver extends MainObserver implements SimpleObserver {
 
     @Override
     public void handleSuccess() {
-        presenter.getView().displayPostStatusSuccess("Successfully Posted!");
+        getPresenter().getView().displayPostStatusSuccess("Successfully Posted!");
     }
 }

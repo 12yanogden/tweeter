@@ -33,7 +33,7 @@ public abstract class PagedPresenter<T> extends ViewPresenter {
     public void loadMoreItems(User user) {
         if (!isLoading) {   // This guard is important for avoiding a race condition in the scrolling code.
             isLoading = true;
-            view.setLoadingStatus(true);
+            getView().setLoadingStatus(true);
 
             getItems(Cache.getInstance().getCurrUserAuthToken(), user, PAGE_SIZE, lastItem);
         }
@@ -41,7 +41,7 @@ public abstract class PagedPresenter<T> extends ViewPresenter {
 
     protected abstract void getItems(AuthToken currUserAuthToken, User user, int pageSize, T lastItem);
 
-    public boolean isHasMorePages() {
+    public boolean hasMorePages() {
         return hasMorePages;
     }
 
@@ -55,7 +55,7 @@ public abstract class PagedPresenter<T> extends ViewPresenter {
 
     public void setLoading(boolean isLoading) {
         this.isLoading = isLoading;
-        view.setLoadingStatus(isLoading);
+        getView().setLoadingStatus(isLoading);
     }
 
     public void setLastItem(T lastItem) {
@@ -69,6 +69,6 @@ public abstract class PagedPresenter<T> extends ViewPresenter {
     public void getUser(String alias) {
         AuthToken authToken = Cache.getInstance().getCurrUserAuthToken();
 
-        userService.getUser(authToken, alias, new GetUserObserver(this, "get user's profile"));
+        getUserService().getUser(authToken, alias, new GetUserObserver(this, "get user's profile"));
     }
 }

@@ -20,6 +20,7 @@ import edu.byu.cs.tweeter.client.presenter.observer.GetFollowingCountObserver;
 import edu.byu.cs.tweeter.client.presenter.observer.IsFollowerObserver;
 import edu.byu.cs.tweeter.client.presenter.observer.LogoutObserver;
 import edu.byu.cs.tweeter.client.presenter.observer.PostStatusObserver;
+import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class MainPresenter extends ViewPresenter {
@@ -33,30 +34,52 @@ public class MainPresenter extends ViewPresenter {
     }
 
     private final MainView view;
-    private final FollowService followService; // TODO: Is this duplication?
-    private final StatusService statusService;
+    private FollowService followService;
+    private StatusService statusService;
 
     public MainPresenter (MainView view) {
         this.view = view;
-        this.followService = new FollowService();
-        this.statusService = new StatusService();
+    }
+
+    protected FollowService getFollowService() {
+        if (followService == null) {
+            followService = new FollowService();
+        }
+
+        return followService;
+    }
+
+    protected StatusService getStatusService() {
+        if (statusService == null) {
+            statusService = new StatusService();
+        }
+
+        return statusService;
     }
 
     public void updateFollowButton(User selectedUser) {
-        followService.isFollower(Cache.getInstance().getCurrUserAuthToken(), Cache.getInstance().getCurrUser(), selectedUser, new IsFollowerObserver(this, "determine following relationship"));
+        getFollowService().isFollower(Cache.getInstance().getCurrUserAuthToken(), Cache.getInstance().getCurrUser(), selectedUser, new IsFollowerObserver(this, "determine following relationship"));
     }
 
     public void logout() {
-        userService.logout(Cache.getInstance().getCurrUserAuthToken(), new LogoutObserver(this, "logout"));
+        getUserService().logout(Cache.getInstance().getCurrUserAuthToken(), new LogoutObserver(this, "logout"));
     }
 
     public void postStatus(String post, String LOG_TAG) {
         try {
-            statusService.postStatus(post, Cache.getInstance().getCurrUser(), getFormattedDateTime(), parseURLs(post), parseMentions(post), Cache.getInstance().getCurrUserAuthToken(), new PostStatusObserver(this, "post status"));
+            getView().displayToast("Posting status...");
+
+            Status status = new Status(post, Cache.getInstance().getCurrUser(), getFormattedDateTime(), parseURLs(post), parseMentions(post));
+
+            getStatusService().postStatus(status, Cache.getInstance().getCurrUserAuthToken(), getPostStatusObserver());
         } catch (Exception exception) {
-            Log.e(LOG_TAG, exception.getMessage(), exception);
-            view.displayToast("Failed to post the status because of exception: " + exception.getMessage());
+//            Log.e(LOG_TAG, exception.getMessage(), exception);
+            getView().displayToast("Failed to post the status because of exception: " + exception.getMessage());
         }
+    }
+
+    protected PostStatusObserver getPostStatusObserver() {
+        return new PostStatusObserver(this, "post status");
     }
 
     public String getFormattedDateTime() throws ParseException {
@@ -124,18 +147,18 @@ public class MainPresenter extends ViewPresenter {
     }
 
     public void unfollow(User selectedUser) {
-        followService.unfollow(Cache.getInstance().getCurrUserAuthToken(), selectedUser, new FollowUnfollowObserver(this, "unfollow", false));
+        getFollowService().unfollow(Cache.getInstance().getCurrUserAuthToken(), selectedUser, new FollowUnfollowObserver(this, "unfollow", false));
     }
 
     public void follow(User selectedUser) {
-        followService.follow(Cache.getInstance().getCurrUserAuthToken(), selectedUser, new FollowUnfollowObserver(this, "follow", true));
+        getFollowService().follow(Cache.getInstance().getCurrUserAuthToken(), selectedUser, new FollowUnfollowObserver(this, "follow", true));
     }
 
     public void updateSelectedUsersFollowingAndFollowers(User selectedUser) {
         ExecutorService executor = Executors.newFixedThreadPool(2);
 
-        followService.getFollowersCount(Cache.getInstance().getCurrUserAuthToken(), selectedUser, new GetFollowersCountObserver(this, "get following count"), executor);
-        followService.getFollowingCount(Cache.getInstance().getCurrUserAuthToken(), selectedUser, new GetFollowingCountObserver(this, "get followers count"), executor);
+        getFollowService().getFollowersCount(Cache.getInstance().getCurrUserAuthToken(), selectedUser, new GetFollowersCountObserver(this, "get following count"), executor);
+        getFollowService().getFollowingCount(Cache.getInstance().getCurrUserAuthToken(), selectedUser, new GetFollowingCountObserver(this, "get followers count"), executor);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package edu.byu.cs.tweeter.client.presenter;
 
-import edu.byu.cs.tweeter.client.model.service.UserService;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public abstract class AuthenticatePresenter extends ViewPresenter {
@@ -9,12 +8,9 @@ public abstract class AuthenticatePresenter extends ViewPresenter {
     }
 
     protected AuthenticateView view;
-    protected UserService userService;
 
     public AuthenticatePresenter(AuthenticateView view) {
         this.view = view;
-
-        this.userService = new UserService();
     }
 
     public AuthenticateView getView() {

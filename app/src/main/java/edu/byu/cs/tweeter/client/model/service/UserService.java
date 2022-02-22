@@ -26,9 +26,7 @@ public class UserService extends ModelService {
     }
 
     public void login(String alias, String password, AuthenticateObserver observer) {
-        LoginTask loginTask = new LoginTask(alias,
-                password,
-                new AuthenticateHandler(observer));
+        LoginTask loginTask = new LoginTask(alias, password, new AuthenticateHandler(observer));
 
         execute(loginTask);
     }

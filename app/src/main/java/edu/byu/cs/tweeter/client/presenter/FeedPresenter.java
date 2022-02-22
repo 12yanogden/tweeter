@@ -12,6 +12,6 @@ public class FeedPresenter extends PagedStatusPresenter {
 
     @Override
     protected void getItems(AuthToken authToken, User user, int pageSize, Status lastItem) {
-        statusService.getFeed(authToken, user, pageSize, lastItem, new PagedObserver<>(this, "get feed"));
+        getStatusService().getFeed(authToken, user, pageSize, lastItem, new PagedObserver<>(this, "get feed"));
     }
 }
