@@ -48,15 +48,29 @@ public class FollowingPresenterTest {
         fakeAuthToken = new AuthToken("abc-123-xyz-789", "August 12, 2021 3:01 PM");
 
         // followingViewMock is used to verify that FollowingPresenter correctly calls view methods.
-        followingViewMock = Mockito.mock(FollowingPresenter.View.class);
+        followingViewMock = Mockito.mock(PagedUserView.class);
 
         // Create the mocks and spies needed to let test cases control what users are returned
         // FollowService.
-        FollowingPresenter followingPresenter = new FollowingPresenter(followingViewMock, fakeUser, fakeAuthToken);
+        FollowingPresenter followingPresenter = new FollowingPresenter(followingViewMock);
         followingPresenterSpy = Mockito.spy(followingPresenter);
 
         followingServiceMock = Mockito.mock(FollowService.class);
-        Mockito.doReturn(followingServiceMock).when(followingPresenterSpy).getFollowingService();
+        Mockito.doReturn(followingServiceMock).when(followingPresenterSpy).getFollowService();
+    }
+
+    private static class PagedUserView implements PagedPresenter.PagedView<User> {
+        @Override
+        public void setLoadingStatus(boolean status) {}
+
+        @Override
+        public void addItems(List<User> items) {}
+
+        @Override
+        public void navToUserPage(User user) {}
+
+        @Override
+        public void displayToast(String message) {}
     }
 
     /**
@@ -64,8 +78,8 @@ public class FollowingPresenterTest {
      */
     @Test
     public void testInitialPresenterState() {
-        assertNull(followingPresenterSpy.getLastFollowee());
-        assertTrue(followingPresenterSpy.isHasMorePages());
+        assertNull(followingPresenterSpy.getLastItem());
+        assertTrue(followingPresenterSpy.hasMorePages());
         assertFalse(followingPresenterSpy.isLoading());
     }
 
@@ -84,15 +98,15 @@ public class FollowingPresenterTest {
                 // Assert that the parameters are correct
                 Assert.assertEquals(fakeUser, user);
                 Assert.assertEquals(fakeAuthToken, authToken);
-                Assert.assertEquals(limit, FollowingPresenter.PAGE_SIZE);
-                Assert.assertEquals(lastFollowee, followingPresenterSpy.getLastFollowee());
+                Assert.assertEquals(limit, FollowingPresenter.getPageSize());
+                Assert.assertEquals(lastFollowee, followingPresenterSpy.getLastItem());
 
                 FollowService.GetFollowingObserver observer = invocation.getArgument(4);
                 observer.handleSuccess(followees, true);
                 return null;
             }
         };
-        Mockito.doAnswer(manyFolloweesAnswer).when(followingServiceMock).getFollowees(Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any(), Mockito.any());
+        Mockito.doAnswer(manyFolloweesAnswer).when(followingServiceMock).getFollowing(Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any(), Mockito.any());
         followingPresenterSpy.loadMoreItems();
     }
 
@@ -114,16 +128,16 @@ public class FollowingPresenterTest {
                 return null;
             }
         };
-        Mockito.doAnswer(manyFolloweesAnswer).when(followingServiceMock).getFollowees(Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any(), Mockito.any());
+        Mockito.doAnswer(manyFolloweesAnswer).when(followingServiceMock).getFollowing(Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any(), Mockito.any());
 
         followingPresenterSpy.loadMoreItems();
 
-        assertEquals(user5, followingPresenterSpy.getLastFollowee());
-        assertTrue(followingPresenterSpy.isHasMorePages());
+        assertEquals(user5, followingPresenterSpy.getLastItem());
+        assertTrue(followingPresenterSpy.hasMorePages());
         assertFalse(followingPresenterSpy.isLoading());
 
-        Mockito.verify(followingViewMock).setLoading(true);
-        Mockito.verify(followingViewMock).setLoading(false);
+        Mockito.verify(followingViewMock).setLoadingStatus(true);
+        Mockito.verify(followingViewMock).setLoadingStatus(false);
         Mockito.verify(followingViewMock).addItems(Arrays.asList(user1, user2, user3, user4, user5));
     }
 
@@ -141,15 +155,15 @@ public class FollowingPresenterTest {
                 return null;
             }
         };
-        Mockito.doAnswer(failureAnswer).when(followingServiceMock).getFollowees(Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any(), Mockito.any());
+        Mockito.doAnswer(failureAnswer).when(followingServiceMock).getFollowing(Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any(), Mockito.any());
 
         followingPresenterSpy.loadMoreItems();
 
         assertFalse(followingPresenterSpy.isLoading());
 
-        Mockito.verify(followingViewMock).setLoading(true);
-        Mockito.verify(followingViewMock).setLoading(false);
-        Mockito.verify(followingViewMock).displayErrorMessage("Failed to retrieve followees: " + "failure message");
+        Mockito.verify(followingViewMock).setLoadingStatus(true);
+        Mockito.verify(followingViewMock).setLoadingStatus(false);
+        Mockito.verify(followingViewMock).displayToast("Failed to retrieve followees: " + "failure message");
         Mockito.verify(followingViewMock, Mockito.times(0)).addItems(Mockito.any());
     }
 
@@ -163,16 +177,16 @@ public class FollowingPresenterTest {
                 return null;
             }
         };
-        Mockito.doAnswer(exceptionAnswer).when(followingServiceMock).getFollowees(Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any(), Mockito.any());
+        Mockito.doAnswer(exceptionAnswer).when(followingServiceMock).getFollowing(Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any(), Mockito.any());
 
         followingPresenterSpy.loadMoreItems();
 
 
         assertFalse(followingPresenterSpy.isLoading());
 
-        Mockito.verify(followingViewMock).setLoading(true);
-        Mockito.verify(followingViewMock).setLoading(false);
-        Mockito.verify(followingViewMock).displayErrorMessage("Failed to retrieve followees because of exception: " + "The exception message");
+        Mockito.verify(followingViewMock).setLoadingStatus(true);
+        Mockito.verify(followingViewMock).setLoadingStatus(false);
+        Mockito.verify(followingViewMock).displayToast("Failed to retrieve followees because of exception: " + "The exception message");
         Mockito.verify(followingViewMock, Mockito.times(0)).addItems(Mockito.any());
     }
 

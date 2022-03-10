@@ -1,22 +1,31 @@
-package edu.byu.cs.tweeter.client.model.service;
+package edu.byu.cs.tweeter.client.model.service.task;
 
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import java.io.IOException;
+
+import edu.byu.cs.tweeter.client.model.net.ServerFacade;
+import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
+import edu.byu.cs.tweeter.util.FakeData;
+
 public abstract class BackgroundTask implements Runnable {
-
-    private static final String LOG_TAG = "Task";
-
+    private static final String LOG_TAG = "BackgroundTask";
+    public static final String USER_KEY = "user";
     public static final String SUCCESS_KEY = "success";
     public static final String MESSAGE_KEY = "message";
     public static final String EXCEPTION_KEY = "exception";
 
     protected final Handler messageHandler;
+    private final ServerFacade facade;
+    private final String urlPath;
 
-    protected BackgroundTask(Handler messageHandler) {
+    protected BackgroundTask(Handler messageHandler, ServerFacade facade, String urlPath) {
         this.messageHandler = messageHandler;
+        this.facade = facade;
+        this.urlPath = urlPath;
     }
 
     @Override
@@ -38,9 +47,7 @@ public abstract class BackgroundTask implements Runnable {
     }
 
     // To be overridden by each task to add information to the bundle
-    protected void loadSuccessBundle(Bundle msgBundle) {
-        // By default, do nothing
-    }
+    protected abstract void loadSuccessBundle(Bundle msgBundle);
 
     // This method is public instead of protected to make it accessible to test cases
     public void sendFailedMessage(String message) {
@@ -65,5 +72,18 @@ public abstract class BackgroundTask implements Runnable {
         messageHandler.sendMessage(msg);
     }
 
-    protected abstract void runTask();
+    // TODO: Remove getFakeData()
+    protected FakeData getFakeData() {
+        return new FakeData();
+    }
+
+    protected abstract void runTask() throws IOException, TweeterRemoteException;
+
+    public ServerFacade getServerFacade() {
+        return facade;
+    }
+
+    public String getUrlPath() {
+        return urlPath;
+    }
 }

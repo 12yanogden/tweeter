@@ -2,13 +2,13 @@ package edu.byu.cs.tweeter.server.service;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
-import edu.byu.cs.tweeter.model.net.request.LoginRequest;
+import edu.byu.cs.tweeter.model.net.request.AuthenticateRequest;
 import edu.byu.cs.tweeter.model.net.response.LoginResponse;
 import edu.byu.cs.tweeter.util.FakeData;
 
 public class UserService {
 
-    public LoginResponse login(LoginRequest request) {
+    public LoginResponse login(AuthenticateRequest request) {
         if(request.getUsername() == null){
             throw new RuntimeException("[BadRequest] Missing a username");
         } else if(request.getPassword() == null) {
