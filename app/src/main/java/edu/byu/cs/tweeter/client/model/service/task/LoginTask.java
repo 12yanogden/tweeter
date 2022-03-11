@@ -23,6 +23,6 @@ public class LoginTask extends AuthenticateTask {
     protected AuthenticateResponse authenticate(String username, String password, ServerFacade facade, String urlPath) throws IOException, TweeterRemoteException {
         AuthenticateRequest request = new AuthenticateRequest(username, password);  // TODO: Use getAuthenticateRequest()
 
-        return facade.request(request, urlPath, new AuthenticateResponse("placeholder"));
+        return facade.request(request, urlPath, AuthenticateResponse.class);
     }
 }

@@ -7,7 +7,6 @@ import java.util.Objects;
  * Represents a user in the system.
  */
 public class User implements Comparable<User>, Serializable {
-
     private String firstName;
     private String lastName;
     private String alias;

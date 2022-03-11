@@ -1,43 +1,72 @@
 package edu.byu.cs.tweeter.server.service;
 
+import java.util.Random;
+
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.model.net.request.FollowCountRequest;
+import edu.byu.cs.tweeter.model.net.request.FollowRequest;
 import edu.byu.cs.tweeter.model.net.request.PagedRequest;
+import edu.byu.cs.tweeter.model.net.response.FollowCountResponse;
+import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.PagedResponse;
-import edu.byu.cs.tweeter.server.dao.FollowingDAO;
+import edu.byu.cs.tweeter.model.net.response.Response;
+import edu.byu.cs.tweeter.server.dao.FollowDAO;
+import edu.byu.cs.tweeter.server.dao.PagedDAO;
 
 /**
  * Contains the business logic for getting the users a user is following.
  */
-public class FollowService {
-
-    /**
-     * Returns the users that the user specified in the request is following. Uses information in
-     * the request object to limit the number of followees returned and to return the next set of
-     * followees after any that were returned in a previous request. Uses the {@link FollowingDAO} to
-     * get the followees.
-     *
-     * @param request contains the data required to fulfill the request.
-     * @return the followees.
-     */
-    public PagedResponse<User> getPagedUsers(PagedRequest request) {
-        if(request.getTargetUserAlias() == null) {
-            throw new RuntimeException("[BadRequest] Request needs to have a follower alias");
-
-        } else if(request.getLimit() <= 0) {
-            throw new RuntimeException("[BadRequest] Request needs to have a positive limit");
+public class FollowService extends PagedService<User> {
+    public FollowCountResponse getFollowCount(FollowCountRequest request) {
+        if (request.getTargetUserAlias() == null) {
+            throw new RuntimeException("[BadRequest] Request needs to have a targetUser alias");
         }
 
-        return getFollowingDAO().getPagedUsers(request);
+        int followCount = getDAO().getFollowCount(request.getTargetUserAlias());
+
+        return new FollowCountResponse(followCount);
     }
 
-    /**
-     * Returns an instance of {@link FollowingDAO}. Allows mocking of the FollowDAO class
-     * for testing purposes. All usages of FollowDAO should get their FollowDAO
-     * instance from this method to allow for mocking of the instance.
-     *
-     * @return the instance.
-     */
-    FollowingDAO getFollowingDAO() {
-        return new FollowingDAO();
+    public IsFollowerResponse isFollower(FollowRequest request) {
+        if (request.getTargetUserAlias() == null) {
+            throw new RuntimeException("[BadRequest] Request needs to have a targetUser alias");
+        }
+
+        if (request.getFolloweeAlias() == null) {
+            throw new RuntimeException("[BadRequest] Request needs to have a followee alias");
+        }
+
+        boolean isFollower = new Random().nextInt() > 0;
+
+        return new IsFollowerResponse(isFollower);
+    }
+
+    @Override
+    public FollowDAO getDAO() {
+        return new FollowDAO();
+    }
+
+    public Response follow(FollowRequest request) {
+        if (request.getTargetUserAlias() == null) {
+            throw new RuntimeException("[BadRequest] Request needs to have a targetUser alias");
+        }
+
+        if (request.getFolloweeAlias() == null) {
+            throw new RuntimeException("[BadRequest] Request needs to have a followee alias");
+        }
+
+        return new Response(true);
+    }
+
+    public Response unfollow(FollowRequest request) {
+        if (request.getTargetUserAlias() == null) {
+            throw new RuntimeException("[BadRequest] Request needs to have a targetUser alias");
+        }
+
+        if (request.getFolloweeAlias() == null) {
+            throw new RuntimeException("[BadRequest] Request needs to have a followee alias");
+        }
+
+        return new Response(true);
     }
 }

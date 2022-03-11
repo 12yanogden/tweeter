@@ -12,11 +12,7 @@ import edu.byu.cs.tweeter.model.domain.User;
 public class FollowTask extends FollowUnfollowTask {
     private static final String LOG_TAG = "FollowTask";
 
-    public FollowTask(AuthToken authToken, User followee, Handler messageHandler, ServerFacade facade, String urlPath) {
-        super(authToken, followee, messageHandler, facade, urlPath);
-    }
-
-    protected void runTask() {
-        // Will implement in Milestone 3
+    public FollowTask(AuthToken authToken, User follower, User followee, Handler messageHandler, ServerFacade facade, String urlPath) {
+        super(authToken, follower, followee, messageHandler, facade, urlPath);
     }
 }

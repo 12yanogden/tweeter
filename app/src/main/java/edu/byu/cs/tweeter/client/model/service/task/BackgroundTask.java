@@ -9,6 +9,7 @@ import java.io.IOException;
 
 import edu.byu.cs.tweeter.client.model.net.ServerFacade;
 import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
+import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.util.FakeData;
 
 public abstract class BackgroundTask implements Runnable {
@@ -37,7 +38,6 @@ public abstract class BackgroundTask implements Runnable {
             sendExceptionMessage(ex);
         }
     }
-
     // This method is public instead of protected to make it accessible to test cases
     public void sendSuccessMessage() {
         Bundle msgBundle = new Bundle();

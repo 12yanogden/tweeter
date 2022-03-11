@@ -91,5 +91,4 @@ public class Status implements Serializable {
                 ", urls=" + urls +
                 '}';
     }
-
 }

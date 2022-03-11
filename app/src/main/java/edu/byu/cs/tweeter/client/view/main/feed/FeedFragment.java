@@ -23,6 +23,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
@@ -290,6 +292,22 @@ public class FeedFragment extends Fragment implements PagedView<Status> {
         @Override
         public void onBindViewHolder(@NonNull FeedHolder feedHolder, int position) {
             if (!presenter.isLoading()) {
+                System.out.println("+---------------------------------------------------------------------------------------+");
+                System.out.println("|                                                                                       |");
+                System.out.println("|                                     FeedFragment                                      |");
+                System.out.println("|                                                                                       |");
+                System.out.println("+---------------------------------------------------------------------------------------+");
+                System.out.println("position: " + position);
+                System.out.println("+---------------------------------------------------------------------------------------+");
+                System.out.println("size: " + feed.size());
+                System.out.println("+---------------------------------------------------------------------------------------+");
+                System.out.println("feed: " + feed);
+                System.out.println("+---------------------------------------------------------------------------------------+");
+                System.out.println("feed.get(0): " + feed.get(position));
+                System.out.println("+---------------------------------------------------------------------------------------+");
+                System.out.println("feed[0].getClass():" + feed.get(position).getClass());
+                System.out.println("+---------------------------------------------------------------------------------------+");
+
                 feedHolder.bindStatus(feed.get(position));
             }
         }

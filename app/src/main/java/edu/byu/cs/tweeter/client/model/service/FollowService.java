@@ -64,12 +64,12 @@ public class FollowService extends ModelService {
         execute(getIsFollowerTask(authToken, user, selectedUser, observer, "/isfollower"));
     }
 
-    public void unfollow(AuthToken authToken, User selectedUser, UserObserverInterface observer) {
-        execute(getUnfollowTask(authToken, selectedUser, observer, "/unfollow"));
+    public void unfollow(AuthToken authToken, User targetUser, User selectedUser, UserObserverInterface observer) {
+        execute(getUnfollowTask(authToken, targetUser, selectedUser, observer, "/unfollow"));
     }
 
-    public void follow(AuthToken authToken, User selectedUser, UserObserverInterface observer) {
-        execute(getFollowTask(authToken, selectedUser, observer, "/follow"));
+    public void follow(AuthToken authToken, User targetUser, User selectedUser, UserObserverInterface observer) {
+        execute(getFollowTask(authToken, targetUser, selectedUser, observer, "/follow"));
     }
 
     public void getFollowersCount(AuthToken authToken, User selectedUser, CountObserverInterface observer, Executor executor) {
@@ -100,12 +100,12 @@ public class FollowService extends ModelService {
         return new IsFollowerTask(authToken, user, selectedUser, new IsFollowerHandler(observer), getServerFacade(), urlPath);
     }
 
-    private UnfollowTask getUnfollowTask(AuthToken authToken, User selectedUser, UserObserverInterface observer, String urlPath) {
-        return new UnfollowTask(authToken, selectedUser, new UserHandler(observer), getServerFacade(), urlPath);
+    private UnfollowTask getUnfollowTask(AuthToken authToken, User targetUser, User selectedUser, UserObserverInterface observer, String urlPath) {
+        return new UnfollowTask(authToken, targetUser, selectedUser, new UserHandler(observer), getServerFacade(), urlPath);
     }
 
-    private FollowTask getFollowTask(AuthToken authToken, User selectedUser, UserObserverInterface observer, String urlPath) {
-        return new FollowTask(authToken, selectedUser, new UserHandler(observer), getServerFacade(), urlPath);
+    private FollowTask getFollowTask(AuthToken authToken, User targetUser, User selectedUser, UserObserverInterface observer, String urlPath) {
+        return new FollowTask(authToken, targetUser, selectedUser, new UserHandler(observer), getServerFacade(), urlPath);
     }
 
     private GetFollowersCountTask getGetFollowersCountTask(AuthToken authToken, User selectedUser, CountObserverInterface observer, Executor executor, String urlPath) {

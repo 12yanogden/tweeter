@@ -11,7 +11,8 @@ import edu.byu.cs.tweeter.client.model.net.ServerFacade;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
-import edu.byu.cs.tweeter.util.Pair;
+import edu.byu.cs.tweeter.model.net.request.PagedRequest;
+import edu.byu.cs.tweeter.model.net.response.PagedResponse;
 
 public abstract class PagedTask<T> extends AuthenticatedTask {
     private static final String LOG_TAG = "PagedTask";
@@ -58,16 +59,36 @@ public abstract class PagedTask<T> extends AuthenticatedTask {
 
     @Override
     protected void runTask() throws IOException, TweeterRemoteException {
-        Pair<List<T>, Boolean> pageOfItems = getItems();
+        String targetUserAlias = getTargetUser() == null ? null : getTargetUser().getAlias();
+        String lastItemId = getLastItemId(getLastItem());
 
-        items = pageOfItems.getFirst();
-        hasMorePages = pageOfItems.getSecond();
+        PagedRequest request = new PagedRequest(getAuthToken(), targetUserAlias, getLimit(), lastItemId);
+        PagedResponse<T> response = request(request, getUrlPath());
+
+        if(response.isSuccess()) {
+            setItems(response.getItems());
+            setHasMorePages(response.getHasMorePages());
+            sendSuccessMessage();
+
+        } else {
+            sendFailedMessage(response.getMessage());
+        }
     }
 
-    protected abstract Pair<List<T>, Boolean> getItems();
+    protected abstract PagedResponse<T> request(PagedRequest request, String urlPath) throws IOException, TweeterRemoteException;
+
+    protected abstract String getLastItemId(T lastItem);
 
     @Override
     protected void loadSuccessBundle(Bundle msgBundle) {
+        System.out.println("+---------------------------------------------------------------------------------------+");
+        System.out.println("|                                                                                       |");
+        System.out.println("|                                Before being serialized                                |");
+        System.out.println("|                                                                                       |");
+        System.out.println("+---------------------------------------------------------------------------------------+");
+        System.out.println("items.get(0).getClass(): " + items.get(0).getClass());
+        System.out.println("+---------------------------------------------------------------------------------------+");
+
         msgBundle.putSerializable(ITEMS_KEY, (Serializable) items);
         msgBundle.putBoolean(MORE_PAGES_KEY, hasMorePages);
     }

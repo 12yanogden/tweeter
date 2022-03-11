@@ -3,12 +3,26 @@ package edu.byu.cs.tweeter.server.service;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.AuthenticateRequest;
-import edu.byu.cs.tweeter.model.net.response.LoginResponse;
+import edu.byu.cs.tweeter.model.net.request.GetUserRequest;
+import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
+import edu.byu.cs.tweeter.model.net.request.Request;
+import edu.byu.cs.tweeter.model.net.response.AuthenticateResponse;
+import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
+import edu.byu.cs.tweeter.model.net.response.Response;
+import edu.byu.cs.tweeter.server.dao.UserDAO;
 import edu.byu.cs.tweeter.util.FakeData;
+import edu.byu.cs.tweeter.util.Pair;
 
 public class UserService {
+    public AuthenticateResponse register(RegisterRequest input) {
+        UserDAO userDAO = new UserDAO();
 
-    public LoginResponse login(AuthenticateRequest request) {
+        Pair<User, AuthToken> authentication = userDAO.register(input.getFirstName(), input.getLastName(), input.getUsername(), input.getPassword(), input.getImage());
+
+        return new AuthenticateResponse(authentication.getFirst(), authentication.getSecond());
+    }
+
+    public AuthenticateResponse login(AuthenticateRequest request) {
         if(request.getUsername() == null){
             throw new RuntimeException("[BadRequest] Missing a username");
         } else if(request.getPassword() == null) {
@@ -16,38 +30,20 @@ public class UserService {
         }
 
         // TODO: Generates dummy data. Replace with a real implementation.
-        User user = getDummyUser();
-        AuthToken authToken = getDummyAuthToken();
-        return new LoginResponse(user, authToken);
+        UserDAO userDAO = new UserDAO();
+
+        Pair<User, AuthToken> authentication = userDAO.login();
+
+        return new AuthenticateResponse(authentication.getFirst(), authentication.getSecond());
     }
 
-    /**
-     * Returns the dummy user to be returned by the login operation.
-     * This is written as a separate method to allow mocking of the dummy user.
-     *
-     * @return a dummy user.
-     */
-    User getDummyUser() {
-        return getFakeData().getFirstUser();
+    public GetUserResponse getUser(GetUserRequest request) {
+        UserDAO userDAO = new UserDAO();
+
+        return new GetUserResponse(userDAO.getUser(request.getUserAlias()));
     }
 
-    /**
-     * Returns the dummy auth token to be returned by the login operation.
-     * This is written as a separate method to allow mocking of the dummy auth token.
-     *
-     * @return a dummy auth token.
-     */
-    AuthToken getDummyAuthToken() {
-        return getFakeData().getAuthToken();
-    }
-
-    /**
-     * Returns the {@link FakeData} object used to generate dummy users and auth tokens.
-     * This is written as a separate method to allow mocking of the {@link FakeData}.
-     *
-     * @return a {@link FakeData} instance.
-     */
-    FakeData getFakeData() {
-        return new FakeData();
+    public Response logout(Request request) {
+        return new Response(true);
     }
 }

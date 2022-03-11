@@ -2,8 +2,16 @@ package edu.byu.cs.tweeter.client.model.net;
 
 import java.io.IOException;
 
+import edu.byu.cs.tweeter.model.domain.Status;
+import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
+import edu.byu.cs.tweeter.model.net.request.AuthenticateRequest;
+import edu.byu.cs.tweeter.model.net.request.PagedRequest;
 import edu.byu.cs.tweeter.model.net.request.Request;
+import edu.byu.cs.tweeter.model.net.response.AuthenticateResponse;
+import edu.byu.cs.tweeter.model.net.response.PagedResponse;
+import edu.byu.cs.tweeter.model.net.response.PagedStatusResponse;
+import edu.byu.cs.tweeter.model.net.response.PagedUserResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
 
 /**
@@ -18,8 +26,8 @@ public class ServerFacade {
 
     private final ClientCommunicator clientCommunicator = new ClientCommunicator(SERVER_URL);
 
-    public <R extends Response> R request(Request request, String urlPath, R response) throws IOException, TweeterRemoteException {
-        response = (R) clientCommunicator.doPost(urlPath, request, null, response.getClass());
+    public <R extends Response> R request(Request request, String urlPath, Class<R> clazz) throws IOException, TweeterRemoteException {
+        R response = clientCommunicator.doPost(urlPath, request, null, clazz);
 
         if (!response.isSuccess()) {
             throw new RuntimeException(response.getMessage());

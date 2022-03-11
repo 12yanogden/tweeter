@@ -42,6 +42,6 @@ public class RegisterTask extends AuthenticateTask {
     protected AuthenticateResponse authenticate(String username, String password, ServerFacade facade, String urlPath) throws IOException, TweeterRemoteException {
         RegisterRequest request = new RegisterRequest(firstName, lastName, username, password, image);
 
-        return facade.request(request, urlPath, new AuthenticateResponse("placeholder"));
+        return getServerFacade().request(request, urlPath, AuthenticateResponse.class);
     }
 }

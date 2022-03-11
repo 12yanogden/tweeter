@@ -40,8 +40,8 @@ public abstract class AuthenticateTask extends BackgroundTask {
         AuthenticateResponse response = authenticate(username, password, getServerFacade(), getUrlPath());
 
         if (response.isSuccess()) {
-            this.user = response.getUser(); // TODO: Use setUser()
-            this.authToken = response.getAuthToken();
+            setUser(response.getUser());
+            setAuthToken(response.getAuthToken());
 
             sendSuccessMessage();
 
@@ -56,5 +56,13 @@ public abstract class AuthenticateTask extends BackgroundTask {
     protected void loadSuccessBundle(Bundle msgBundle) {
         msgBundle.putSerializable(USER_KEY, user);
         msgBundle.putSerializable(AUTH_TOKEN_KEY, authToken);
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void setAuthToken(AuthToken authToken) {
+        this.authToken = authToken;
     }
 }

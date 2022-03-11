@@ -145,11 +145,11 @@ public class MainPresenter extends ViewPresenter {
     }
 
     public void unfollow(User selectedUser) {
-        getFollowService().unfollow(Cache.getInstance().getCurrUserAuthToken(), selectedUser, new FollowUnfollowObserver(this, "unfollow", false));
+        getFollowService().unfollow(Cache.getInstance().getCurrUserAuthToken(), Cache.getInstance().getCurrUser(), selectedUser, new FollowUnfollowObserver(this, "unfollow", false));
     }
 
     public void follow(User selectedUser) {
-        getFollowService().follow(Cache.getInstance().getCurrUserAuthToken(), selectedUser, new FollowUnfollowObserver(this, "follow", true));
+        getFollowService().follow(Cache.getInstance().getCurrUserAuthToken(), Cache.getInstance().getCurrUser(), selectedUser, new FollowUnfollowObserver(this, "follow", true));
     }
 
     public void updateSelectedUsersFollowingAndFollowers(User selectedUser) {
