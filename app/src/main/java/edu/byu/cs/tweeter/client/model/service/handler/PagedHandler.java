@@ -18,20 +18,6 @@ public class PagedHandler<T> extends BackgroundTaskHandler<PagedObserverInterfac
     protected void handleSuccess(Bundle data, PagedObserverInterface<T> observer) {
         List<T> items = (List<T>) data.getSerializable(PagedTask.ITEMS_KEY); // TODO: List is of LinkedTreeMaps
 
-        System.out.println("+---------------------------------------------------------------------------------------+");
-        System.out.println("|                                                                                       |");
-        System.out.println("|                                    Testing List<T>                                    |");
-        System.out.println("|                                                                                       |");
-        System.out.println("+---------------------------------------------------------------------------------------+");
-        System.out.println("data: " + data);
-        System.out.println("+---------------------------------------------------------------------------------------+");
-        System.out.println("ITEMS_KEY: " + PagedTask.ITEMS_KEY);
-        System.out.println("+---------------------------------------------------------------------------------------+");
-        System.out.println("data.getSerializable(): " + data.getSerializable(PagedTask.ITEMS_KEY));
-        System.out.println("+---------------------------------------------------------------------------------------+");
-        System.out.println("items.get(0).getClass(): " + items.get(0).getClass());
-        System.out.println("+---------------------------------------------------------------------------------------+");
-
         boolean hasMorePages = data.getBoolean(PagedStatusTask.MORE_PAGES_KEY);
 
         observer.handleSuccess(items, hasMorePages);

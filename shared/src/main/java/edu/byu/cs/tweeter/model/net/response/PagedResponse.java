@@ -35,14 +35,6 @@ public class PagedResponse<T> extends Response {
     }
 
     public List<T> getItems() {
-        System.out.println("+---------------------------------------------------------------------------------------+");
-        System.out.println("|                                                                                       |");
-        System.out.println("|                                     In response                                       |");
-        System.out.println("|                                                                                       |");
-        System.out.println("+---------------------------------------------------------------------------------------+");
-        System.out.println("items.get(0).getClass(): " + items.get(0).getClass());
-        System.out.println("+---------------------------------------------------------------------------------------+");
-
         return items;
     }
 

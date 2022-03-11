@@ -81,14 +81,6 @@ public abstract class PagedTask<T> extends AuthenticatedTask {
 
     @Override
     protected void loadSuccessBundle(Bundle msgBundle) {
-        System.out.println("+---------------------------------------------------------------------------------------+");
-        System.out.println("|                                                                                       |");
-        System.out.println("|                                Before being serialized                                |");
-        System.out.println("|                                                                                       |");
-        System.out.println("+---------------------------------------------------------------------------------------+");
-        System.out.println("items.get(0).getClass(): " + items.get(0).getClass());
-        System.out.println("+---------------------------------------------------------------------------------------+");
-
         msgBundle.putSerializable(ITEMS_KEY, (Serializable) items);
         msgBundle.putBoolean(MORE_PAGES_KEY, hasMorePages);
     }
