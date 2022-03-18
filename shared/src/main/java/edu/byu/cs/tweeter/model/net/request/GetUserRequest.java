@@ -3,6 +3,8 @@ package edu.byu.cs.tweeter.model.net.request;
 public class GetUserRequest extends Request {
     private String userAlias;
 
+    public GetUserRequest() {}
+
     public GetUserRequest(String userAlias) {
         this.userAlias = userAlias;
     }

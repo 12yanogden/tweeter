@@ -5,6 +5,8 @@ import edu.byu.cs.tweeter.model.domain.Status;
 public class PostStatusRequest extends Request {
     private Status status;
 
+    public PostStatusRequest() {}
+
     public PostStatusRequest(Status status) {
         this.status = status;
     }

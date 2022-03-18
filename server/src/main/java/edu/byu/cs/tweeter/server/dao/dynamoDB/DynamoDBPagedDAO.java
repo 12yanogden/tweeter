@@ -1,15 +1,13 @@
-package edu.byu.cs.tweeter.server.dao;
+package edu.byu.cs.tweeter.server.dao.dynamoDB;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import edu.byu.cs.tweeter.model.net.request.PagedRequest;
-import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
 import edu.byu.cs.tweeter.model.net.response.PagedResponse;
-import edu.byu.cs.tweeter.model.net.response.Response;
-import edu.byu.cs.tweeter.util.FakeData;
+import edu.byu.cs.tweeter.server.dao.DAO;
 
-public abstract class PagedDAO<T> extends DAO {
+public abstract class DynamoDBPagedDAO<T> extends DAO {
     public PagedResponse<T> getPagedItems(PagedRequest request) {
         // TODO: Generates dummy data. Replace with a real implementation.
         assert request.getLimit() > 0;

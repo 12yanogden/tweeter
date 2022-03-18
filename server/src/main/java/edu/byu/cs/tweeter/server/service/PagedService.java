@@ -1,10 +1,8 @@
 package edu.byu.cs.tweeter.server.service;
 
 import edu.byu.cs.tweeter.model.net.request.PagedRequest;
-import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
 import edu.byu.cs.tweeter.model.net.response.PagedResponse;
-import edu.byu.cs.tweeter.model.net.response.Response;
-import edu.byu.cs.tweeter.server.dao.PagedDAO;
+import edu.byu.cs.tweeter.server.dao.dynamoDB.DynamoDBPagedDAO;
 
 public abstract class PagedService<T> {
     public PagedResponse<T> getPagedItems(PagedRequest request) {
@@ -18,5 +16,5 @@ public abstract class PagedService<T> {
         return getDAO().getPagedItems(request);
     }
 
-    protected abstract <D extends PagedDAO<T>> D getDAO();
+    protected abstract <D extends DynamoDBPagedDAO<T>> D getDAO();
 }

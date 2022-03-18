@@ -23,11 +23,11 @@ public class StatusService extends ModelService {
         execute(getPostStatusTask(status, authToken, observer, "/poststatus"));
     }
 
-    private PagedStatusTask getPagedStatusTask(AuthToken authToken, User user, int pageSize, Status lastStatus, PagedObserverInterface<Status> observer, String urlPath) {
+    public PagedStatusTask getPagedStatusTask(AuthToken authToken, User user, int pageSize, Status lastStatus, PagedObserverInterface<Status> observer, String urlPath) {
         return new PagedStatusTask(authToken, user, pageSize, lastStatus, new PagedHandler<>(observer), getServerFacade(), urlPath);
     }
 
-    private PostStatusTask getPostStatusTask(Status status, AuthToken authToken, SimpleObserverInterface observer, String urlPath) {
+    public PostStatusTask getPostStatusTask(Status status, AuthToken authToken, SimpleObserverInterface observer, String urlPath) {
         return new PostStatusTask(authToken, status, new SimpleHandler(observer), getServerFacade(), urlPath);
     }
 }

@@ -5,6 +5,8 @@ public class RegisterRequest extends AuthenticateRequest {
     private String lastName;
     private String image;
 
+    public RegisterRequest() {}
+
     public RegisterRequest(String firstName, String lastName, String username, String password, String image) {
         super(username, password);
 

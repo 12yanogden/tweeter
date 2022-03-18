@@ -9,13 +9,12 @@ import edu.byu.cs.tweeter.model.net.request.Request;
 import edu.byu.cs.tweeter.model.net.response.AuthenticateResponse;
 import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
-import edu.byu.cs.tweeter.server.dao.UserDAO;
-import edu.byu.cs.tweeter.util.FakeData;
+import edu.byu.cs.tweeter.server.dao.dynamoDB.DynamoDBUserDAO;
 import edu.byu.cs.tweeter.util.Pair;
 
 public class UserService {
     public AuthenticateResponse register(RegisterRequest input) {
-        UserDAO userDAO = new UserDAO();
+        DynamoDBUserDAO userDAO = new DynamoDBUserDAO();
 
         Pair<User, AuthToken> authentication = userDAO.register(input.getFirstName(), input.getLastName(), input.getUsername(), input.getPassword(), input.getImage());
 
@@ -30,7 +29,7 @@ public class UserService {
         }
 
         // TODO: Generates dummy data. Replace with a real implementation.
-        UserDAO userDAO = new UserDAO();
+        DynamoDBUserDAO userDAO = new DynamoDBUserDAO();
 
         Pair<User, AuthToken> authentication = userDAO.login();
 
@@ -38,7 +37,7 @@ public class UserService {
     }
 
     public GetUserResponse getUser(GetUserRequest request) {
-        UserDAO userDAO = new UserDAO();
+        DynamoDBUserDAO userDAO = new DynamoDBUserDAO();
 
         return new GetUserResponse(userDAO.getUser(request.getUserAlias()));
     }

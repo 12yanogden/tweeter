@@ -5,6 +5,8 @@ public class FollowRequest extends Request {
     String targetUserAlias;
     String followeeAlias;
 
+    public FollowRequest() {}
+
     public FollowRequest(String targetUserAlias, String followeeAlias) {
         this.targetUserAlias = targetUserAlias;
         this.followeeAlias = followeeAlias;

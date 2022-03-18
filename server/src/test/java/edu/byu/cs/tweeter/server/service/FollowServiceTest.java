@@ -11,13 +11,13 @@ import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.PagedRequest;
 import edu.byu.cs.tweeter.model.net.response.PagedResponse;
-import edu.byu.cs.tweeter.server.dao.FollowDAO;
+import edu.byu.cs.tweeter.server.dao.dynamoDB.DynamoDBFollowDAO;
 
 public class FollowServiceTest {
 
     private PagedRequest request;
     private PagedResponse<User> expectedResponse;
-    private FollowDAO mockFollowingDAO;
+    private DynamoDBFollowDAO mockFollowingDAO;
     private FollowService followServiceSpy;
 
     @Before
@@ -38,7 +38,7 @@ public class FollowServiceTest {
 
         // Setup a mock FollowDAO that will return known responses
         expectedResponse = new PagedResponse<>(Arrays.asList(resultUser1, resultUser2, resultUser3), false);
-        mockFollowingDAO = Mockito.mock(FollowDAO.class);
+        mockFollowingDAO = Mockito.mock(DynamoDBFollowDAO.class);
         Mockito.when(mockFollowingDAO.getPagedItems(request)).thenReturn(expectedResponse);
 
         followServiceSpy = Mockito.spy(FollowService.class);
@@ -47,7 +47,7 @@ public class FollowServiceTest {
 
     /**
      * Verify that the {@link FollowService#getPagedItems(PagedRequest)}
-     * method returns the same result as the {@link FollowDAO} class.
+     * method returns the same result as the {@link DynamoDBFollowDAO} class.
      */
     @Test
     public void testGetFollowees_validRequest_correctResponse() {
