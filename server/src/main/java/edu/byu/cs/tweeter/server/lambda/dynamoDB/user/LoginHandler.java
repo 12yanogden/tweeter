@@ -1,4 +1,4 @@
-package edu.byu.cs.tweeter.server.lambda;
+package edu.byu.cs.tweeter.server.lambda.dynamoDB.user;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
@@ -11,11 +11,9 @@ import edu.byu.cs.tweeter.server.service.UserService;
  * An AWS lambda function that logs a user in and returns the user object and an auth code for
  * a successful login.
  */
-public class LoginHandler implements RequestHandler<AuthenticateRequest, AuthenticateResponse> {
+public class LoginHandler extends UserServiceHandler implements RequestHandler<AuthenticateRequest, AuthenticateResponse> {
     @Override
     public AuthenticateResponse handleRequest(AuthenticateRequest authenticateRequest, Context context) {
-        UserService userService = new UserService();
-
-        return userService.login(authenticateRequest);
+        return getService().login(authenticateRequest);
     }
 }

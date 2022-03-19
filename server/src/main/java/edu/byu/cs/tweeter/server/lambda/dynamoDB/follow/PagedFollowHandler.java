@@ -1,4 +1,4 @@
-package edu.byu.cs.tweeter.server.lambda;
+package edu.byu.cs.tweeter.server.lambda.dynamoDB.follow;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
@@ -11,7 +11,7 @@ import edu.byu.cs.tweeter.server.service.FollowService;
 /**
  * An AWS lambda function that returns the users a user is following.
  */
-public class PagedFollowHandler implements RequestHandler<PagedRequest, PagedResponse<User>> {
+public class PagedFollowHandler extends FollowServiceHandler implements RequestHandler<PagedRequest, PagedResponse<User>> {
     /**
      * Returns the users that the user specified in the request is following. Uses information in
      * the request object to limit the number of followees returned and to return the next set of
@@ -23,8 +23,6 @@ public class PagedFollowHandler implements RequestHandler<PagedRequest, PagedRes
      */
     @Override
     public PagedResponse<User> handleRequest(PagedRequest request, Context context) {
-        FollowService service = new FollowService();
-
-        return service.getPagedItems(request);
+        return getService().getPagedItems(request);
     }
 }

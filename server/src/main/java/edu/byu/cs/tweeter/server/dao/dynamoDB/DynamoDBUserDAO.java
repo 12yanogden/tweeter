@@ -2,10 +2,12 @@ package edu.byu.cs.tweeter.server.dao.dynamoDB;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
-import edu.byu.cs.tweeter.server.dao.DAO;
+import edu.byu.cs.tweeter.server.dao.UserDAO;
+import edu.byu.cs.tweeter.util.FakeData;
 import edu.byu.cs.tweeter.util.Pair;
 
-public class DynamoDBUserDAO extends DAO {
+public class DynamoDBUserDAO implements UserDAO  {
+    @Override
     public Pair<User, AuthToken> register(String firstName, String lastName, String username, String password, String image) {
         User user = getFakeData().getFirstUser();
         AuthToken authToken = getFakeData().getAuthToken();
@@ -13,14 +15,20 @@ public class DynamoDBUserDAO extends DAO {
         return new Pair<>(user, authToken);
     }
 
-    public Pair<User, AuthToken> login() {
+    @Override
+    public Pair<User, AuthToken> login(String username, String password) {
         User user = getFakeData().getFirstUser();
         AuthToken authToken = getFakeData().getAuthToken();
 
         return new Pair<>(user, authToken);
     }
 
+    @Override
     public User getUser(String userAlias) {
         return getFakeData().findUserByAlias(userAlias);
+    }
+
+    protected FakeData getFakeData() {
+        return new FakeData();
     }
 }

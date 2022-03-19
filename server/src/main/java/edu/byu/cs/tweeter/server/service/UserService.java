@@ -9,10 +9,17 @@ import edu.byu.cs.tweeter.model.net.request.Request;
 import edu.byu.cs.tweeter.model.net.response.AuthenticateResponse;
 import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
+import edu.byu.cs.tweeter.server.dao.DAOFactory;
+import edu.byu.cs.tweeter.server.dao.FollowDAO;
+import edu.byu.cs.tweeter.server.dao.UserDAO;
 import edu.byu.cs.tweeter.server.dao.dynamoDB.DynamoDBUserDAO;
 import edu.byu.cs.tweeter.util.Pair;
 
-public class UserService {
+public class UserService extends FactoryService {
+    public UserService(DAOFactory factory) {
+        super(factory);
+    }
+
     public AuthenticateResponse register(RegisterRequest input) {
         DynamoDBUserDAO userDAO = new DynamoDBUserDAO();
 
@@ -31,7 +38,7 @@ public class UserService {
         // TODO: Generates dummy data. Replace with a real implementation.
         DynamoDBUserDAO userDAO = new DynamoDBUserDAO();
 
-        Pair<User, AuthToken> authentication = userDAO.login();
+        Pair<User, AuthToken> authentication = userDAO.login(request.getUsername(), request.getPassword());
 
         return new AuthenticateResponse(authentication.getFirst(), authentication.getSecond());
     }
@@ -44,5 +51,9 @@ public class UserService {
 
     public Response logout(Request request) {
         return new Response(true);
+    }
+
+    protected UserDAO getDAO() {
+        return factory.makeUserDAO();
     }
 }
