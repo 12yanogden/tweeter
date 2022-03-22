@@ -19,9 +19,6 @@ import edu.byu.cs.tweeter.model.net.response.Response;
  * this class.
  */
 public class ServerFacade {
-
-    // TODO: Set this to the invoke URL of your API. Find it by going to your API in AWS, clicking
-    //  on stages in the right-side menu, and clicking on the stage you deployed your API to.
     private static final String SERVER_URL = "https://y06riuh7sf.execute-api.us-west-2.amazonaws.com/prd";
 
     private final ClientCommunicator clientCommunicator = new ClientCommunicator(SERVER_URL);

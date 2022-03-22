@@ -1,4 +1,4 @@
-package edu.byu.cs.tweeter.server.lambda.dynamoDB.follow;
+package edu.byu.cs.tweeter.server.lambda.follow;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
@@ -6,7 +6,6 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.PagedRequest;
 import edu.byu.cs.tweeter.model.net.response.PagedResponse;
-import edu.byu.cs.tweeter.server.service.FollowService;
 
 /**
  * An AWS lambda function that returns the users a user is following.
@@ -23,6 +22,10 @@ public class PagedFollowHandler extends FollowServiceHandler implements RequestH
      */
     @Override
     public PagedResponse<User> handleRequest(PagedRequest request, Context context) {
+        validateUsername("target user alias", request.getTargetUserAlias());
+        validateNotNull("limit", request.getLimit());
+        validatePositive("limit", request.getLimit());
+
         return getService().getPagedItems(request);
     }
 }

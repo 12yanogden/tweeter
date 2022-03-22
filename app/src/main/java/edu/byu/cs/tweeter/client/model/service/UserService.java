@@ -1,6 +1,5 @@
 package edu.byu.cs.tweeter.client.model.service;
 
-import edu.byu.cs.tweeter.client.model.net.ServerFacade;
 import edu.byu.cs.tweeter.client.model.service.handler.AuthenticateHandler;
 import edu.byu.cs.tweeter.client.model.service.handler.SimpleHandler;
 import edu.byu.cs.tweeter.client.model.service.handler.UserHandler;

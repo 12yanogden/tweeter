@@ -1,13 +1,19 @@
 package edu.byu.cs.tweeter.server.lambda;
 
-import edu.byu.cs.tweeter.server.dao.DAOFactory;
+import edu.byu.cs.tweeter.server.dao.dynamoDB.DynamoDBDAOFactory;
 
-public abstract class FactoryHandler<F extends DAOFactory> {
-    protected F factory;
+public abstract class FactoryHandler {
+    private DynamoDBDAOFactory factory;
 
-    public FactoryHandler(F factory) {
-        this.factory = factory;
+    public FactoryHandler() {
+        this.factory = getFactory();
     }
 
-    protected abstract F getFactory();
+    protected DynamoDBDAOFactory getFactory() {
+        if (factory == null) {
+            factory = new DynamoDBDAOFactory();
+        }
+
+        return factory;
+    }
 }

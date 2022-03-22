@@ -1,15 +1,16 @@
-package edu.byu.cs.tweeter.server.lambda.dynamoDB.user;
+package edu.byu.cs.tweeter.server.lambda.user;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 
 import edu.byu.cs.tweeter.model.net.request.GetUserRequest;
 import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
-import edu.byu.cs.tweeter.server.service.UserService;
 
 public class GetUserHandler extends UserServiceHandler implements RequestHandler<GetUserRequest, GetUserResponse> {
     @Override
     public GetUserResponse handleRequest(GetUserRequest input, Context context) {
+        validateUsername("user alias", input.getUserAlias());
+
         return getService().getUser(input);
     }
 }

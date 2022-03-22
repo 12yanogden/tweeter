@@ -24,60 +24,28 @@ public class FollowService extends PagedService<User> {
     }
 
     public FollowCountResponse getFollowerCount(FollowCountRequest request) {
-        if (request.getTargetUserAlias() == null) {
-            throw new RuntimeException("[BadRequest] Request needs to have a targetUser alias");
-        }
-
         int followCount = getDAO().getFollowCount(request.getTargetUserAlias());
 
         return new FollowCountResponse(followCount);
     }
 
     public FollowCountResponse getFollowingCount(FollowCountRequest request) {
-        if (request.getTargetUserAlias() == null) {
-            throw new RuntimeException("[BadRequest] Request needs to have a targetUser alias");
-        }
-
         int followCount = getDAO().getFollowCount(request.getTargetUserAlias());
 
         return new FollowCountResponse(followCount);
     }
 
     public IsFollowerResponse isFollower(FollowRequest request) {
-        if (request.getTargetUserAlias() == null) {
-            throw new RuntimeException("[BadRequest] Request needs to have a targetUser alias");
-        }
-
-        if (request.getFolloweeAlias() == null) {
-            throw new RuntimeException("[BadRequest] Request needs to have a followee alias");
-        }
-
         boolean isFollower = new Random().nextInt() > 0;
 
         return new IsFollowerResponse(isFollower);
     }
 
     public Response follow(FollowRequest request) {
-        if (request.getTargetUserAlias() == null) {
-            throw new RuntimeException("[BadRequest] Request needs to have a targetUser alias");
-        }
-
-        if (request.getFolloweeAlias() == null) {
-            throw new RuntimeException("[BadRequest] Request needs to have a followee alias");
-        }
-
         return new Response(true);
     }
 
     public Response unfollow(FollowRequest request) {
-        if (request.getTargetUserAlias() == null) {
-            throw new RuntimeException("[BadRequest] Request needs to have a targetUser alias");
-        }
-
-        if (request.getFolloweeAlias() == null) {
-            throw new RuntimeException("[BadRequest] Request needs to have a followee alias");
-        }
-
         return new Response(true);
     }
 

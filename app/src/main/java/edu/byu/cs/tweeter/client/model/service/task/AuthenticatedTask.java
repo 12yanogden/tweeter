@@ -5,7 +5,7 @@ import android.os.Handler;
 import edu.byu.cs.tweeter.client.model.net.ServerFacade;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 
-public abstract class AuthenticatedTask extends BackgroundTask { // TODO: Should/can inheritance be reflected in directory structure?
+public abstract class AuthenticatedTask extends BackgroundTask {
     private static final String LOG_TAG = "AuthenticatedTask";
     private AuthToken authToken;
 

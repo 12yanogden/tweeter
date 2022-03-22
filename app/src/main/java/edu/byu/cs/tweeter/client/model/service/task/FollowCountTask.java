@@ -12,7 +12,7 @@ import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
 import edu.byu.cs.tweeter.model.net.request.FollowCountRequest;
 import edu.byu.cs.tweeter.model.net.response.FollowCountResponse;
 
-public abstract class FollowCountTask extends AuthenticatedTask {
+public class FollowCountTask extends AuthenticatedTask {
     private static final String LOG_TAG = "CountTask";
     public static final String COUNT_KEY = "count";
 

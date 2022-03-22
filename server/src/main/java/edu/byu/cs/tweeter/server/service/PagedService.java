@@ -12,13 +12,6 @@ public abstract class PagedService<T> extends FactoryService {
     }
 
     public PagedResponse<T> getPagedItems(PagedRequest request) {
-        if(request.getTargetUserAlias() == null) {
-            throw new RuntimeException("[BadRequest] Request needs to have a targetUser alias");
-
-        } else if(request.getLimit() <= 0) {
-            throw new RuntimeException("[BadRequest] Request needs to have a positive limit");
-        }
-
         return getDAO().getPagedItems(request);
     }
 

@@ -21,32 +21,19 @@ public class UserService extends FactoryService {
     }
 
     public AuthenticateResponse register(RegisterRequest input) {
-        DynamoDBUserDAO userDAO = new DynamoDBUserDAO();
-
-        Pair<User, AuthToken> authentication = userDAO.register(input.getFirstName(), input.getLastName(), input.getUsername(), input.getPassword(), input.getImage());
+        Pair<User, AuthToken> authentication = getDAO().register(input.getFirstName(), input.getLastName(), input.getUsername(), input.getPassword(), input.getImage());
 
         return new AuthenticateResponse(authentication.getFirst(), authentication.getSecond());
     }
 
     public AuthenticateResponse login(AuthenticateRequest request) {
-        if(request.getUsername() == null){
-            throw new RuntimeException("[BadRequest] Missing a username");
-        } else if(request.getPassword() == null) {
-            throw new RuntimeException("[BadRequest] Missing a password");
-        }
-
-        // TODO: Generates dummy data. Replace with a real implementation.
-        DynamoDBUserDAO userDAO = new DynamoDBUserDAO();
-
-        Pair<User, AuthToken> authentication = userDAO.login(request.getUsername(), request.getPassword());
+        Pair<User, AuthToken> authentication = getDAO().login(request.getUsername(), request.getPassword());
 
         return new AuthenticateResponse(authentication.getFirst(), authentication.getSecond());
     }
 
     public GetUserResponse getUser(GetUserRequest request) {
-        DynamoDBUserDAO userDAO = new DynamoDBUserDAO();
-
-        return new GetUserResponse(userDAO.getUser(request.getUserAlias()));
+        return new GetUserResponse(getDAO().getUser(request.getUserAlias()));
     }
 
     public Response logout(Request request) {
