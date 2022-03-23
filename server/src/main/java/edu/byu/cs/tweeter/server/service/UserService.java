@@ -21,13 +21,13 @@ public class UserService extends FactoryService {
     }
 
     public AuthenticateResponse register(RegisterRequest input) {
-        Pair<User, AuthToken> authentication = getDAO().register(input.getFirstName(), input.getLastName(), input.getUsername(), input.getPassword(), input.getImage());
+        Pair<User, AuthToken> authentication = getDAO().register(input.getFirstName(), input.getLastName(), input.getAlias(), input.getPassword(), input.getImage());
 
         return new AuthenticateResponse(authentication.getFirst(), authentication.getSecond());
     }
 
     public AuthenticateResponse login(AuthenticateRequest request) {
-        Pair<User, AuthToken> authentication = getDAO().login(request.getUsername(), request.getPassword());
+        Pair<User, AuthToken> authentication = getDAO().login(request.getAlias(), request.getPassword());
 
         return new AuthenticateResponse(authentication.getFirst(), authentication.getSecond());
     }

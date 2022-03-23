@@ -7,8 +7,8 @@ public class RegisterRequest extends AuthenticateRequest {
 
     public RegisterRequest() {}
 
-    public RegisterRequest(String firstName, String lastName, String username, String password, String image) {
-        super(username, password);
+    public RegisterRequest(String firstName, String lastName, String alias, String password, String image) {
+        super(alias, password);
 
         this.firstName = firstName;
         this.lastName = lastName;

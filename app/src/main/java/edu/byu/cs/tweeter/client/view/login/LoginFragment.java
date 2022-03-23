@@ -46,7 +46,7 @@ public class LoginFragment extends Fragment implements AuthenticateView {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
 
-        alias = view.findViewById(R.id.loginUsername);
+        alias = view.findViewById(R.id.loginAlias);
         password = view.findViewById(R.id.loginPassword);
         errorView = view.findViewById(R.id.loginError);
         Button loginButton = view.findViewById(R.id.loginButton);

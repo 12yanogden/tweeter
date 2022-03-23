@@ -29,9 +29,9 @@ public class RegisterTask extends AuthenticateTask {
      */
     private String image;
 
-    public RegisterTask(String firstName, String lastName, String username, String password,
+    public RegisterTask(String firstName, String lastName, String alias, String password,
                         String image, Handler messageHandler, ServerFacade facade, String urlPath) {
-        super(username, password, messageHandler, facade, urlPath);
+        super(alias, password, messageHandler, facade, urlPath);
 
         this.firstName = firstName;
         this.lastName = lastName;
@@ -39,8 +39,8 @@ public class RegisterTask extends AuthenticateTask {
     }
 
     @Override
-    protected AuthenticateResponse authenticate(String username, String password, ServerFacade facade, String urlPath) throws IOException, TweeterRemoteException {
-        RegisterRequest request = new RegisterRequest(firstName, lastName, username, password, image);
+    protected AuthenticateResponse authenticate(String alias, String password, ServerFacade facade, String urlPath) throws IOException, TweeterRemoteException {
+        RegisterRequest request = new RegisterRequest(firstName, lastName, alias, password, image);
 
         return getServerFacade().request(request, urlPath, AuthenticateResponse.class);
     }

@@ -9,7 +9,7 @@ import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
 public class GetUserHandler extends UserServiceHandler implements RequestHandler<GetUserRequest, GetUserResponse> {
     @Override
     public GetUserResponse handleRequest(GetUserRequest input, Context context) {
-        validateUsername("user alias", input.getUserAlias());
+        validateAlias("user alias", input.getUserAlias());
 
         return getService().getUser(input);
     }

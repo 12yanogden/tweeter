@@ -9,7 +9,7 @@ import edu.byu.cs.tweeter.model.net.response.AuthenticateResponse;
 public class RegisterHandler extends UserServiceHandler implements RequestHandler<RegisterRequest, AuthenticateResponse> {
     @Override
     public AuthenticateResponse handleRequest(RegisterRequest input, Context context) {
-        validateUsername("username", input.getUsername());
+        validateAlias("alias", input.getAlias());
         validateNotNull("password", input.getPassword());
         validateNotNull("first name", input.getFirstName());
         validateNotNull("last name", input.getLastName());

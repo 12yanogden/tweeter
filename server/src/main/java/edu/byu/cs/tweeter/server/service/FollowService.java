@@ -24,28 +24,32 @@ public class FollowService extends PagedService<User> {
     }
 
     public FollowCountResponse getFollowerCount(FollowCountRequest request) {
-        int followCount = getDAO().getFollowCount(request.getTargetUserAlias());
+        int followCount = getDAO().getFollowerCount(request.getTargetUserAlias());
 
         return new FollowCountResponse(followCount);
     }
 
     public FollowCountResponse getFollowingCount(FollowCountRequest request) {
-        int followCount = getDAO().getFollowCount(request.getTargetUserAlias());
+        int followCount = getDAO().getFollowingCount(request.getTargetUserAlias());
 
         return new FollowCountResponse(followCount);
     }
 
     public IsFollowerResponse isFollower(FollowRequest request) {
-        boolean isFollower = new Random().nextInt() > 0;
+        boolean isFollower = getDAO().isFollower(request.getFolloweeAlias(), request.getTargetUserAlias());
 
         return new IsFollowerResponse(isFollower);
     }
 
     public Response follow(FollowRequest request) {
+        getDAO().follow(request.getFolloweeAlias(), request.getTargetUserAlias());
+
         return new Response(true);
     }
 
     public Response unfollow(FollowRequest request) {
+        getDAO().unfollow(request.getFolloweeAlias(), request.getTargetUserAlias());
+
         return new Response(true);
     }
 

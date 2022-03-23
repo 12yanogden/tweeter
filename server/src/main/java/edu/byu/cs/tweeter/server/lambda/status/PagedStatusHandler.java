@@ -10,7 +10,7 @@ import edu.byu.cs.tweeter.model.net.response.PagedResponse;
 public class PagedStatusHandler extends StatusServiceHandler implements RequestHandler<PagedRequest, PagedResponse<Status>> {
     @Override
     public PagedResponse<Status> handleRequest(PagedRequest request, Context context) {
-        validateUsername("target user alias", request.getTargetUserAlias());
+        validateAlias("target user alias", request.getTargetUserAlias());
         validateNotNull("limit", request.getLimit());
         validatePositive("limit", request.getLimit());
 

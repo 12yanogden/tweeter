@@ -2,97 +2,187 @@ package edu.byu.cs.tweeter.server.dao.dynamoDB;
 
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.PutItemOutcome;
+import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.UpdateItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
+import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
+import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
+import com.amazonaws.services.dynamodbv2.model.ReturnValue;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 
+import java.io.ByteArrayInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.server.dao.UserDAO;
-import edu.byu.cs.tweeter.util.FakeData;
 import edu.byu.cs.tweeter.util.Pair;
 
 public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
+    private Table userTable;
+    private S3Facade s3;
+    private String s3BucketName;
+    private DynamoDBAuthTokenDAO authTokenDAO;
+
     public DynamoDBUserDAO() {
-        super("user");
+        userTable = getDynamoDB().getTableByName("user");
+        s3 = new S3Facade(getRegion());
+        s3BucketName = "tweeter";
+        authTokenDAO = new DynamoDBAuthTokenDAO();
     }
 
     @Override
-    public Pair<User, AuthToken> register(String firstName, String lastName, String username, String password, String image) {
-        String hashAndSalt = hash(password);
-        String imageURL = putImage(image);
-        User user = getFakeData().getFirstUser();
-        AuthToken authToken = getFakeData().getAuthToken();
+    public Pair<User, AuthToken> register(String firstName, String lastName, String alias, String password, String image) {
+        String hashedPassword;
+        String imageURL;
+        User user;
+        AuthToken authToken;
+        Item item;
 
-        System.out.println("Register user: " + username);
+        // TODO: Verify alias is unique
 
-        PutItemOutcome outcome = getTable().putItem(
-                new Item()
-                        .withPrimaryKey(
-                                "username",
-                                username)
-                        .withString(
-                                "firstName",
-                                firstName)
-                        .withString(
-                                "lastName",
-                                lastName)
-                        .withString(
-                                "password",
-                                hashAndSalt)
-                        .withString(
-                                "imageURL",
-                                imageURL)
-        );
+        hashedPassword = hash(password);
+        imageURL = getS3().putStreamInBucket(getS3BucketName(), alias, toStream(image), makeMetadata("image/png"));
+        item = new Item()
+                .withPrimaryKey(
+                        "alias",
+                        alias)
+                .withString(
+                        "firstName",
+                        firstName)
+                .withString(
+                        "lastName",
+                        lastName)
+                .withString(
+                        "password",
+                        hashedPassword)
+                .withString(
+                        "imageURL",
+                        imageURL)
+                .withInt(
+                        "followingCount",
+                        0)
+                .withInt(
+                        "followerCount",
+                        0);
 
-        System.out.println("Register succeeded:\n" + outcome.getPutItemResult()); // TODO: Determine how to detect if user already exists
+        getDynamoDB().putItemInTable("user", item, getUserTable());
 
-        return new Pair<>(user, authToken); // TODO: Determine what to return if DB request or hashAndSalt fails
+        user = new User(firstName, lastName, alias, hashedPassword, imageURL);
+
+        return new Pair<>(user, makeAuthToken());
     }
 
     @Override
-    public Pair<User, AuthToken> login(String username, String password) {
-        User user = getUser(username);
-        AuthToken authToken = getFakeData().getAuthToken();
+    public Pair<User, AuthToken> login(String alias, String actualPassword) {
+        GetItemSpec spec = new GetItemSpec().withPrimaryKey("alias", alias);
+        Item dbResponse = getDynamoDB().getItemFromTable("password", spec, getUserTable());
+        String expectedPassword = dbResponse.get("password").toString();
 
-        if (false) { // TODO: user is valid
-            // TODO: username is invalid
+        validatePassword(expectedPassword, actualPassword);
+
+        return new Pair<>(extractUserFromItem(dbResponse), makeAuthToken());
+    }
+
+    @Override
+    public User getUser(String alias) {
+        GetItemSpec spec = new GetItemSpec().withPrimaryKey("alias", alias);
+        Item dbResponse = getDynamoDB().getItemFromTable("user", spec, getUserTable());
+
+        return extractUserFromItem(dbResponse);
+    }
+
+    public int getCount(String alias, String countType) {
+        GetItemSpec spec = new GetItemSpec().withPrimaryKey("alias", alias);
+        Item outcome = getDynamoDB().getItemFromTable("user", spec, getUserTable());
+
+        return Integer.parseInt(outcome.get(countType).toString());
+    }
+
+    public void incrementFollowingCount(String alias) {
+        String countType = "followingCount";
+        int count = getCount(alias, countType);
+
+        setCount(alias, countType, ++count);
+    }
+
+    public void incrementFollowerCount(String alias) {
+        String countType = "followerCount";
+        int count = getCount(alias, countType);
+
+        setCount(alias, countType, ++count);
+    }
+
+    public void decrementFollowingCount(String alias) {
+        String countType = "followingCount";
+        int count = getCount(alias, countType);
+
+        setCount(alias, countType, --count);
+    }
+
+    public void decrementFollowerCount(String alias) {
+        String countType = "followerCount";
+        int count = getCount(alias, countType);
+
+        setCount(alias, countType, --count);
+    }
+
+    private void setCount(String alias, String countType, int count) {
+        UpdateItemSpec updateItemSpec = new UpdateItemSpec().withPrimaryKey("alias", alias)
+                .withUpdateExpression("set " + countType + " = :r")
+                .withValueMap(new ValueMap().withInt(":r", count))
+                .withReturnValues(ReturnValue.UPDATED_NEW);
+
+        System.out.println("Updating " + countType + " for " + alias);
+
+        UpdateItemOutcome outcome = getUserTable().updateItem(updateItemSpec);
+
+        System.out.println("Update succeeded:\n" + outcome.getItem().toJSONPretty());
+    }
+
+    private AuthToken makeAuthToken() {
+        AuthToken authToken = new AuthToken();
+
+        authTokenDAO.putAuthToken(authToken);
+
+        return authToken;
+    }
+
+    private void validatePassword(String dbPassword, String uiPassword) {
+        if (!hash(uiPassword).equals(dbPassword)) {
+            throw new RuntimeException("[Bad Request] Invalid password");
         }
-
-        if (false) { // TODO: isValidPassword(user.getPassword(), password), which algorithm to choose?
-            // TODO: password is invalid
-        }
-
-        // TODO: generate new authToken
-
-        return new Pair<>(user, authToken); // TODO: What to return if username/password are incorrect?
     }
 
-    @Override
-    public User getUser(String username) {
-        GetItemSpec spec = new GetItemSpec().withPrimaryKey("username", username);
-
-        System.out.println("getUser: " + username);
-
-        Item outcome = getTable().getItem(spec);
-
-        System.out.println("getUser succeeded: " + outcome);
-
-        // TODO: Extract user from outcome
-        // TODO: Determine what to return if request fails. A: 400 error
-
-        return getFakeData().findUserByAlias(username);
+    private User extractUserFromItem(Item item) {
+        return new User(item.get("firstName").toString(),
+                item.get("lastName").toString(),
+                item.get("alias").toString(),
+                item.get("password").toString(),
+                item.get("imageURL").toString());
     }
 
-    protected FakeData getFakeData() {
-        return new FakeData();
+    private ByteArrayInputStream toStream(String image) {
+        byte[] imageBytes = Base64.getDecoder().decode(image);
+
+        return new ByteArrayInputStream(imageBytes);
+    }
+
+    private ObjectMetadata makeMetadata(String contentType) {
+        ObjectMetadata metadata = new ObjectMetadata();
+
+        metadata.setContentType(contentType);
+
+        return metadata;
     }
 
     private String hash(String password) {
         byte[] bytes;
         StringBuilder stringBuilder = new StringBuilder();
-        String out = "FAILED TO HASH"; // TODO: 500 error
+        String failedMsg = "FAILED TO HASH";
+        String out = failedMsg;
 
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
@@ -111,11 +201,22 @@ public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
             e.printStackTrace();
         }
 
+        if (out.equals(failedMsg)) {
+            throw new RuntimeException("[Server Error] Failed to hash: " + password);
+        }
+
         return out;
     }
 
-    // TODO: put the image into an s3 bucket and return the url
-    private String putImage(String image) {
-        return "";
+    public Table getUserTable() {
+        return userTable;
+    }
+
+    public S3Facade getS3() {
+        return s3;
+    }
+
+    public String getS3BucketName() {
+        return s3BucketName;
     }
 }

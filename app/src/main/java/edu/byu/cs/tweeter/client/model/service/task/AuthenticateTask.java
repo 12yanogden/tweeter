@@ -17,9 +17,9 @@ public abstract class AuthenticateTask extends BackgroundTask {
     public static final String AUTH_TOKEN_KEY = "auth-token";
 
     /**
-     * The user's username (or "alias" or "handle"). E.g., "@susan".
+     * The user's alias (or "alias" or "handle"). E.g., "@susan".
      */
-    private String username;
+    private String alias;
     /**
      * The user's password.
      */
@@ -28,16 +28,16 @@ public abstract class AuthenticateTask extends BackgroundTask {
     private User user;
     private AuthToken authToken;
 
-    public AuthenticateTask(String username, String password, Handler messageHandler, ServerFacade facade, String urlPath) {
+    public AuthenticateTask(String alias, String password, Handler messageHandler, ServerFacade facade, String urlPath) {
         super(messageHandler, facade, urlPath);
 
-        this.username = username;
+        this.alias = alias;
         this.password = password;
     }
 
     @Override
     protected void runTask() throws IOException, TweeterRemoteException {
-        AuthenticateResponse response = authenticate(username, password, getServerFacade(), getUrlPath());
+        AuthenticateResponse response = authenticate(alias, password, getServerFacade(), getUrlPath());
 
         if (response.isSuccess()) {
             setUser(response.getUser());
@@ -50,7 +50,7 @@ public abstract class AuthenticateTask extends BackgroundTask {
         }
     }
 
-    protected abstract AuthenticateResponse authenticate(String username, String password, ServerFacade facade, String urlPath) throws IOException, TweeterRemoteException;
+    protected abstract AuthenticateResponse authenticate(String alias, String password, ServerFacade facade, String urlPath) throws IOException, TweeterRemoteException;
 
     @Override
     protected void loadSuccessBundle(Bundle msgBundle) {

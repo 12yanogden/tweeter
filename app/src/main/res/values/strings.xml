@@ -6,7 +6,7 @@
     <string name="homePageTitle">Home</string>
     <string name="userImageContentDescription">The user\'s image</string>
 
-    <string name="usernameHint">\@username</string>
+    <string name="aliasHint">\@alias</string>
     <string name="password">password</string>
     <string name="loginButton">login</string>
 

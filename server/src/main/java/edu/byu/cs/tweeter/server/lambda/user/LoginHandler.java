@@ -13,7 +13,7 @@ import edu.byu.cs.tweeter.model.net.response.AuthenticateResponse;
 public class LoginHandler extends UserServiceHandler implements RequestHandler<AuthenticateRequest, AuthenticateResponse> {
     @Override
     public AuthenticateResponse handleRequest(AuthenticateRequest request, Context context) {
-        validateUsername("username", request.getUsername());
+        validateAlias("alias", request.getAlias());
         validateNotNull(" password", request.getPassword());
 
         return getService().login(request);

@@ -9,7 +9,7 @@ import edu.byu.cs.tweeter.model.net.response.FollowCountResponse;
 public class FollowingCountHandler extends FollowServiceHandler implements RequestHandler<FollowCountRequest, FollowCountResponse> {
     @Override
     public FollowCountResponse handleRequest(FollowCountRequest input, Context context) {
-        validateUsername("target user alias", input.getTargetUserAlias());
+        validateAlias("target user alias", input.getTargetUserAlias());
 
         return getService().getFollowingCount(input);
     }

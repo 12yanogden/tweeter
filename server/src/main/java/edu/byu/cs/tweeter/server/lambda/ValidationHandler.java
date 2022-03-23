@@ -1,10 +1,10 @@
 package edu.byu.cs.tweeter.server.lambda;
 
 public abstract class ValidationHandler extends ServiceHandler {
-    protected void validateUsername(String name, String username) {
-        if (username == null) {
+    protected void validateAlias(String name, String alias) {
+        if (alias == null) {
             throw new RuntimeException("[BadRequest] Missing a " + name);
-        } else if (!username.startsWith("@")) {
+        } else if (!alias.startsWith("@")) {
             throw new RuntimeException("[BadRequest] " + name + " missing @ prefix");
         }
     }

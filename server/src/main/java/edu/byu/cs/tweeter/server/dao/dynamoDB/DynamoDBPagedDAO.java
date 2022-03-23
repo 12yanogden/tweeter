@@ -7,7 +7,7 @@ import edu.byu.cs.tweeter.model.net.request.PagedRequest;
 import edu.byu.cs.tweeter.model.net.response.PagedResponse;
 import edu.byu.cs.tweeter.util.FakeData;
 
-public abstract class DynamoDBPagedDAO<T> {
+public abstract class DynamoDBPagedDAO<T> extends DynamoDBDAO {
     public PagedResponse<T> getPagedItems(PagedRequest request) {
         // TODO: Generates dummy data. Replace with a real implementation.
         assert request.getLimit() > 0;

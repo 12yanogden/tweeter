@@ -11,11 +11,11 @@
         android:layout_marginHorizontal="50dp">
 
         <EditText
-            android:id="@+id/loginUsername"
+            android:id="@+id/loginAlias"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:inputType="text"
-            android:hint="@string/usernameHint" />
+            android:hint="@string/aliasHint" />
 
         <EditText
             android:id="@+id/loginPassword"

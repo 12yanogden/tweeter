@@ -1,6 +1,8 @@
 package edu.byu.cs.tweeter.model.domain;
 
 import java.io.Serializable;
+import java.util.Date;
+import java.util.UUID;
 
 /**
  * Represents an auth token in the system.
@@ -16,10 +18,13 @@ public class AuthToken implements Serializable {
     public String datetime;
 
     public AuthToken() {
+        token = UUID.randomUUID().toString();
+        datetime = new Date().toString();
     }
 
     public AuthToken(String token) {
         this.token = token;
+        datetime = new Date().toString();
     }
 
     public AuthToken(String token, String datetime) {

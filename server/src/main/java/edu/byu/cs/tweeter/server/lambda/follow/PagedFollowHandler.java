@@ -22,7 +22,7 @@ public class PagedFollowHandler extends FollowServiceHandler implements RequestH
      */
     @Override
     public PagedResponse<User> handleRequest(PagedRequest request, Context context) {
-        validateUsername("target user alias", request.getTargetUserAlias());
+        validateAlias("target user alias", request.getTargetUserAlias());
         validateNotNull("limit", request.getLimit());
         validatePositive("limit", request.getLimit());
 

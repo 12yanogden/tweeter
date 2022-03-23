@@ -43,8 +43,8 @@ public class UserService extends ModelService {
         return new RegisterTask(firstName, lastName, alias, password, imageURL, new AuthenticateHandler(observer), getServerFacade(), urlPath);
     }
 
-    LoginTask getLoginTask(String username, String password, AuthenticateObserverInterface observer, String urlPath) {
-        return new LoginTask(username, password, new AuthenticateHandler(observer), getServerFacade(), urlPath);
+    LoginTask getLoginTask(String alias, String password, AuthenticateObserverInterface observer, String urlPath) {
+        return new LoginTask(alias, password, new AuthenticateHandler(observer), getServerFacade(), urlPath);
     }
 
     GetUserTask getGetUserTask(AuthToken authToken, String alias, UserObserverInterface observer, String urlPath) {

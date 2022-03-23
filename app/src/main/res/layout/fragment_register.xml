@@ -25,11 +25,11 @@
             android:hint="@string/lastName" />
 
         <EditText
-            android:id="@+id/registerUsername"
+            android:id="@+id/registerAlias"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:inputType="text"
-            android:hint="@string/usernameHint" />
+            android:hint="@string/aliasHint" />
 
         <EditText
             android:id="@+id/registerPassword"
