@@ -33,7 +33,7 @@ public class ServerFacadeTest {
 
         registerRequest = new RegisterRequest("first", "last", "@user", "pass", "image");
         pagedRequest = new PagedRequest(new AuthToken(), "@allen", 10, "@elizabeth");
-        followCountRequest = new FollowCountRequest("@allen");
+        followCountRequest = new FollowCountRequest(new AuthToken(), "@allen");
 
         registerUrlPath = "/register";
         getFollowersUrlPath = "/getfollowers";

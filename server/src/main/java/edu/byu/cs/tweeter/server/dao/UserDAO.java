@@ -5,7 +5,13 @@ import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.util.Pair;
 
 public interface UserDAO {
-    Pair<User, AuthToken> register(String firstName, String lastName, String alias, String password, String image);
-    Pair<User, AuthToken> login(String alias, String password);
     User getUser(String alias);
+    User getUser(String alias, String password);
+    int getFollowerCount(String alias);
+    int getFollowingCount(String alias);
+    void incrementFollowingCount(String alias);
+    void incrementFollowerCount(String alias);
+    void decrementFollowingCount(String alias);
+    void decrementFollowerCount(String alias);
+    String putUser(User user, String password, String image);
 }

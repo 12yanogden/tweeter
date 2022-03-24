@@ -1,62 +1,69 @@
 package edu.byu.cs.tweeter.server.dao.dynamoDB;
 
 import com.amazonaws.services.dynamodbv2.document.Item;
-import com.amazonaws.services.dynamodbv2.document.PutItemOutcome;
-import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
+import com.amazonaws.services.dynamodbv2.document.spec.DeleteItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
+import edu.byu.cs.tweeter.server.dao.AuthTokenDAO;
 
-public class DynamoDBAuthTokenDAO extends DynamoDBDAO {
-    Table authTokenTable;
+public class DynamoDBAuthTokenDAO extends DynamoDBDAO implements AuthTokenDAO {
+    private String itemType;
+    private String tokenAttr;
+    private String dateTimeAttr;
 
     public DynamoDBAuthTokenDAO() {
-        this.authTokenTable = getDynamoDB().getTableByName("authToken");
+        super("authToken");
+
+        this.itemType = "AuthToken";
+        this.tokenAttr = "token";
+        this.dateTimeAttr = "dateTime";
     }
 
-    public void validateAuthToken(AuthToken authToken) {
-
-        // TODO: Determine how long an authToken is supposed to last and how the dateTime is implemented
-    }
-
+    @Override
     public AuthToken getAuthToken(String token) {
-        GetItemSpec spec = new GetItemSpec().withPrimaryKey("token", token);
-        Item outcome;
+        GetItemSpec spec = new GetItemSpec().withPrimaryKey(getTokenAttr(), token);
+        Item outcome = getDynamoDB().getItemFromTable(getItemType(), spec, getTable());
 
-        try {
-            System.out.println("getAuthToken: " + token);
-
-            outcome = getAuthTokenTable().getItem(spec);
-
-            System.out.println("getAuthToken succeeded: " + outcome);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-
-            throw new RuntimeException("[Bad Request] AuthToken \"" + token + "\" not found");
-        }
-
-        return new AuthToken(outcome.get("token").toString(),
-                outcome.get("dateTime").toString());
+        return itemToAuthToken(outcome);
     }
 
+    @Override
     public void putAuthToken(AuthToken authToken) {
-        System.out.println("Put AuthToken: " + authToken.getToken());
+        Item item = new Item()
+                .withPrimaryKey(
+                        getTokenAttr(),
+                        authToken.getToken())
+                .withString(
+                        getDateTimeAttr(),
+                        authToken.getDatetime());
 
-        PutItemOutcome outcome = getAuthTokenTable().putItem(
-                new Item()
-                        .withPrimaryKey(
-                                "token",
-                                authToken.getToken())
-                        .withString(
-                                "dateTime",
-                                authToken.getDatetime())
-        );
-
-        System.out.println("Put AuthToken succeeded:\n" + outcome.getPutItemResult());
+        getDynamoDB().putItemInTable(getItemType(), item, getTable());
     }
 
-    public Table getAuthTokenTable() {
-        return authTokenTable;
+    @Override
+    public void deleteAuthToken(String token) {
+        DeleteItemSpec spec = new DeleteItemSpec()
+                .withPrimaryKey(new PrimaryKey(getTokenAttr(), token));
+
+        getDynamoDB().deleteItemFromTable(getItemType(), spec, getTable());
+    }
+
+    private AuthToken itemToAuthToken(Item item) {
+        return new AuthToken(item.get(getTokenAttr()).toString(),
+                item.get(getDateTimeAttr()).toString());
+    }
+
+    public String getItemType() {
+        return itemType;
+    }
+
+    public String getTokenAttr() {
+        return tokenAttr;
+    }
+
+    public String getDateTimeAttr() {
+        return dateTimeAttr;
     }
 }

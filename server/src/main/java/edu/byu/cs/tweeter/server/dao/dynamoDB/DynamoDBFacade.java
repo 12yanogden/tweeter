@@ -58,7 +58,7 @@ public class DynamoDBFacade {
             System.out.println(e.getMessage());
             e.printStackTrace();
 
-            throw new RuntimeException("[Server Error] Get " + itemType + " failed");
+            throw new RuntimeException("[Bad Request] " + itemType + " not found");
         }
 
         return outcome;

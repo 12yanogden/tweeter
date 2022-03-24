@@ -33,7 +33,7 @@ public class FollowCountTask extends AuthenticatedTask {
 
     @Override
     protected void runTask() throws IOException, TweeterRemoteException {
-        FollowCountRequest request = new FollowCountRequest(getTargetUser().getAlias());
+        FollowCountRequest request = new FollowCountRequest(getAuthToken(), getTargetUser().getAlias());
 
         FollowCountResponse response = getServerFacade().request(request, getUrlPath(), FollowCountResponse.class);
 

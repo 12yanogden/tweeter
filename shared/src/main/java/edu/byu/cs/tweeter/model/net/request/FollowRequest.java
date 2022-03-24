@@ -1,30 +1,35 @@
 package edu.byu.cs.tweeter.model.net.request;
 
+import edu.byu.cs.tweeter.model.domain.AuthToken;
+import edu.byu.cs.tweeter.model.domain.User;
+
 // For follow, unfollow, and isFollower
-public class FollowRequest extends Request {
-    String targetUserAlias;
-    String followeeAlias;
+public class FollowRequest extends AuthenticatedRequest {
+    User follower;
+    User followee;
 
     public FollowRequest() {}
 
-    public FollowRequest(String targetUserAlias, String followeeAlias) {
-        this.targetUserAlias = targetUserAlias;
-        this.followeeAlias = followeeAlias;
+    public FollowRequest(AuthToken authToken, User follower, User followee) {
+        super(authToken);
+
+        this.follower = follower;
+        this.followee = followee;
     }
 
-    public String getTargetUserAlias() {
-        return targetUserAlias;
+    public User getFollower() {
+        return follower;
     }
 
-    public void setTargetUserAlias(String targetUserAlias) {
-        this.targetUserAlias = targetUserAlias;
+    public void setFollower(User follower) {
+        this.follower = follower;
     }
 
-    public String getFolloweeAlias() {
-        return followeeAlias;
+    public User getFollowee() {
+        return followee;
     }
 
-    public void setFolloweeAlias(String followeeAlias) {
-        this.followeeAlias = followeeAlias;
+    public void setFollowee(User followee) {
+        this.followee = followee;
     }
 }

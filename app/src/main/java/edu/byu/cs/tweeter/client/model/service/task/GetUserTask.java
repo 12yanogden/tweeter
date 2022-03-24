@@ -32,7 +32,7 @@ public class GetUserTask extends UserTask {
     }
 
     protected void runTask() throws IOException, TweeterRemoteException {
-        GetUserRequest request = new GetUserRequest(getAlias());
+        GetUserRequest request = new GetUserRequest(getAuthToken(), getAlias());
 
         GetUserResponse response = getServerFacade().request(request, getUrlPath(), GetUserResponse.class);
 

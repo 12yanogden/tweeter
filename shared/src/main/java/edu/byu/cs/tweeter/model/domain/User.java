@@ -18,10 +18,10 @@ public class User implements Comparable<User>, Serializable {
     private User() {}
 
     public User(String firstName, String lastName, String imageURL) {
-        this(firstName, lastName, String.format("@%s%s", firstName, lastName), "defaultPassword", imageURL);
+        this(firstName, lastName, String.format("@%s%s", firstName, lastName), imageURL);
     }
 
-    public User(String firstName, String lastName, String alias, String password, String imageURL) {
+    public User(String firstName, String lastName, String alias, String imageURL) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.alias = alias;

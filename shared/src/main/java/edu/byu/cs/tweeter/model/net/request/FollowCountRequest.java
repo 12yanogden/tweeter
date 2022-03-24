@@ -1,11 +1,15 @@
 package edu.byu.cs.tweeter.model.net.request;
 
-public class FollowCountRequest extends Request {
+import edu.byu.cs.tweeter.model.domain.AuthToken;
+
+public class FollowCountRequest extends AuthenticatedRequest {
     private String targetUserAlias;
 
     public FollowCountRequest () {}
 
-    public FollowCountRequest(String targetUserAlias) {
+    public FollowCountRequest(AuthToken authToken, String targetUserAlias) {
+        super(authToken);
+
         this.targetUserAlias = targetUserAlias;
     }
 

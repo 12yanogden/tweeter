@@ -32,7 +32,7 @@ public class PostStatusTask extends AuthenticatedTask {
 
     @Override
     protected void runTask() throws IOException, TweeterRemoteException {
-        PostStatusRequest request = new PostStatusRequest(getStatus());
+        PostStatusRequest request = new PostStatusRequest(getAuthToken(), getStatus());
 
         Response response = getServerFacade().request(request, getUrlPath(), Response.class);
 

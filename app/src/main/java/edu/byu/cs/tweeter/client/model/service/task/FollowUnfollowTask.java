@@ -24,7 +24,7 @@ public class FollowUnfollowTask extends AuthenticatedTask {
     }
 
     protected void runTask() throws IOException, TweeterRemoteException {
-        FollowRequest request = new FollowRequest(getFollower().getAlias(), getFollowee().getAlias());
+        FollowRequest request = new FollowRequest(getAuthToken(), getFollower(), getFollowee());
 
         Response response = getServerFacade().request(request, getUrlPath(), Response.class);
 

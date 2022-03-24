@@ -1,6 +1,8 @@
 package edu.byu.cs.tweeter.model.domain;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.UUID;
 
@@ -19,7 +21,14 @@ public class AuthToken implements Serializable {
 
     public AuthToken() {
         token = UUID.randomUUID().toString();
-        datetime = new Date().toString();
+        datetime = calcDateTime();
+    }
+
+    private String calcDateTime() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d yyyy h:mm aaa");
+        LocalDateTime now = LocalDateTime.now();
+
+        return formatter.format(now);
     }
 
     public AuthToken(String token) {

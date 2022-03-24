@@ -6,11 +6,11 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import edu.byu.cs.tweeter.model.net.request.GetUserRequest;
 import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
 
-public class GetUserHandler extends UserServiceHandler implements RequestHandler<GetUserRequest, GetUserResponse> {
+public class GetUserHandler extends AuthenticateServiceHandler implements RequestHandler<GetUserRequest, GetUserResponse> {
     @Override
-    public GetUserResponse handleRequest(GetUserRequest input, Context context) {
-        validateAlias("user alias", input.getUserAlias());
+    public GetUserResponse handleRequest(GetUserRequest request, Context context) {
+        validateAlias("user alias", request.getUserAlias());
 
-        return getService().getUser(input);
+        return getService().getUser(request);
     }
 }

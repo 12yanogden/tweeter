@@ -6,15 +6,15 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
 import edu.byu.cs.tweeter.model.net.response.AuthenticateResponse;
 
-public class RegisterHandler extends UserServiceHandler implements RequestHandler<RegisterRequest, AuthenticateResponse> {
+public class RegisterHandler extends AuthenticateServiceHandler implements RequestHandler<RegisterRequest, AuthenticateResponse> {
     @Override
-    public AuthenticateResponse handleRequest(RegisterRequest input, Context context) {
-        validateAlias("alias", input.getAlias());
-        validateNotNull("password", input.getPassword());
-        validateNotNull("first name", input.getFirstName());
-        validateNotNull("last name", input.getLastName());
-        validateNotNull("image", input.getImage());
+    public AuthenticateResponse handleRequest(RegisterRequest request, Context context) {
+        validateAlias("alias", request.getAlias());
+        validateNotNull("password", request.getPassword());
+        validateNotNull("first name", request.getFirstName());
+        validateNotNull("last name", request.getLastName());
+        validateNotNull("image", request.getImage());
 
-        return getService().register(input);
+        return getService().register(request);
     }
 }

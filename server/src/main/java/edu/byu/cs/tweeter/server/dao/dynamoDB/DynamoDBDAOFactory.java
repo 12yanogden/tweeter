@@ -1,11 +1,17 @@
 package edu.byu.cs.tweeter.server.dao.dynamoDB;
 
+import edu.byu.cs.tweeter.server.dao.AuthTokenDAO;
 import edu.byu.cs.tweeter.server.dao.DAOFactory;
 import edu.byu.cs.tweeter.server.dao.FollowDAO;
 import edu.byu.cs.tweeter.server.dao.StatusDAO;
 import edu.byu.cs.tweeter.server.dao.UserDAO;
 
 public class DynamoDBDAOFactory implements DAOFactory {
+    @Override
+    public AuthTokenDAO makeAuthTokenDAO() {
+        return new DynamoDBAuthTokenDAO();
+    }
+
     @Override
     public FollowDAO makeFollowDAO() {
         return new DynamoDBFollowDAO();

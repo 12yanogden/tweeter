@@ -1,7 +1,6 @@
 package edu.byu.cs.tweeter.server.dao.dynamoDB;
 
 import com.amazonaws.services.dynamodbv2.document.Item;
-import com.amazonaws.services.dynamodbv2.document.PutItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.UpdateItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
@@ -21,112 +20,138 @@ import edu.byu.cs.tweeter.server.dao.UserDAO;
 import edu.byu.cs.tweeter.util.Pair;
 
 public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
-    private Table userTable;
     private S3Facade s3;
     private String s3BucketName;
-    private DynamoDBAuthTokenDAO authTokenDAO;
+    private String itemType;
+    private String aliasAttr;
+    private String firstNameAttr;
+    private String lastNameAttr;
+    private String passwordAttr;
+    private String imageURLAttr;
+    private String followingCountAttr;
+    private String followerCountAttr;
 
     public DynamoDBUserDAO() {
-        userTable = getDynamoDB().getTableByName("user");
+        super("user");
+
         s3 = new S3Facade(getRegion());
         s3BucketName = "tweeter";
-        authTokenDAO = new DynamoDBAuthTokenDAO();
+        itemType = "user";
+        aliasAttr = "alias";
+        firstNameAttr = "firstName";
+        lastNameAttr = "lastName";
+        passwordAttr = "password";
+        imageURLAttr = "imageURL";
+        followingCountAttr = "followingCount";
+        followerCountAttr = "followerCount";
     }
 
     @Override
-    public Pair<User, AuthToken> register(String firstName, String lastName, String alias, String password, String image) {
-        String hashedPassword;
+    public String putUser(User user, String password, String image) {
         String imageURL;
-        User user;
-        AuthToken authToken;
         Item item;
 
-        // TODO: Verify alias is unique
+        // TODO: Validate user alias is unique
 
-        hashedPassword = hash(password);
-        imageURL = getS3().putStreamInBucket(getS3BucketName(), alias, toStream(image), makeMetadata("image/png"));
+        imageURL = getS3().putStreamInBucket(getS3BucketName(), user.getAlias(), toStream(image), makeMetadata("image/png"));
+
         item = new Item()
                 .withPrimaryKey(
-                        "alias",
-                        alias)
+                        getAliasAttr(),
+                        user.getAlias())
                 .withString(
-                        "firstName",
-                        firstName)
+                        getFirstNameAttr(),
+                        user.getFirstName())
                 .withString(
-                        "lastName",
-                        lastName)
+                        getLastNameAttr(),
+                        user.getLastName())
                 .withString(
-                        "password",
-                        hashedPassword)
+                        getPasswordAttr(),
+                        hash(password))
                 .withString(
-                        "imageURL",
-                        imageURL)
+                        getImageURLAttr(),
+                        user.getImageUrl())
                 .withInt(
-                        "followingCount",
+                        getFollowingCountAttr(),
                         0)
                 .withInt(
-                        "followerCount",
+                        getFollowerCountAttr(),
                         0);
 
-        getDynamoDB().putItemInTable("user", item, getUserTable());
+        getDynamoDB().putItemInTable(getItemType(), item, getTable());
 
-        user = new User(firstName, lastName, alias, hashedPassword, imageURL);
-
-        return new Pair<>(user, makeAuthToken());
-    }
-
-    @Override
-    public Pair<User, AuthToken> login(String alias, String actualPassword) {
-        GetItemSpec spec = new GetItemSpec().withPrimaryKey("alias", alias);
-        Item dbResponse = getDynamoDB().getItemFromTable("password", spec, getUserTable());
-        String expectedPassword = dbResponse.get("password").toString();
-
-        validatePassword(expectedPassword, actualPassword);
-
-        return new Pair<>(extractUserFromItem(dbResponse), makeAuthToken());
+        return imageURL;
     }
 
     @Override
     public User getUser(String alias) {
         GetItemSpec spec = new GetItemSpec().withPrimaryKey("alias", alias);
-        Item dbResponse = getDynamoDB().getItemFromTable("user", spec, getUserTable());
+        Item dbResponse = getDynamoDB().getItemFromTable("user", spec, getTable());
 
         return extractUserFromItem(dbResponse);
     }
 
+    @Override
+    public User getUser(String alias, String password) {
+        GetItemSpec spec = new GetItemSpec().withPrimaryKey(getAliasAttr(), alias);
+        Item dbResponse = getDynamoDB().getItemFromTable(getItemType(), spec, getTable());
+        String expectedPassword = dbResponse.get(getPasswordAttr()).toString();
+        User user = null;
+
+        if (expectedPassword.equals(hash(password))) {
+            user = extractUserFromItem(dbResponse);
+        }
+
+        return user;
+    }
+
+    @Override
+    public int getFollowingCount(String alias) {
+        return getCount(alias, "followingCount");
+    }
+
+    @Override
+    public int getFollowerCount(String alias) {
+        return getCount(alias, "followerCount");
+    }
+
     public int getCount(String alias, String countType) {
         GetItemSpec spec = new GetItemSpec().withPrimaryKey("alias", alias);
-        Item outcome = getDynamoDB().getItemFromTable("user", spec, getUserTable());
+        Item outcome = getDynamoDB().getItemFromTable("user", spec, getTable());
 
         return Integer.parseInt(outcome.get(countType).toString());
     }
 
+    @Override
     public void incrementFollowingCount(String alias) {
         String countType = "followingCount";
         int count = getCount(alias, countType);
 
-        setCount(alias, countType, ++count);
+        setCount(alias, countType, count + 1);
     }
 
+    @Override
     public void incrementFollowerCount(String alias) {
         String countType = "followerCount";
         int count = getCount(alias, countType);
 
-        setCount(alias, countType, ++count);
+        setCount(alias, countType, count + 1);
     }
 
+    @Override
     public void decrementFollowingCount(String alias) {
         String countType = "followingCount";
         int count = getCount(alias, countType);
 
-        setCount(alias, countType, --count);
+        setCount(alias, countType, count - 1);
     }
 
+    @Override
     public void decrementFollowerCount(String alias) {
         String countType = "followerCount";
         int count = getCount(alias, countType);
 
-        setCount(alias, countType, --count);
+        setCount(alias, countType, count - 1);
     }
 
     private void setCount(String alias, String countType, int count) {
@@ -137,17 +162,9 @@ public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
 
         System.out.println("Updating " + countType + " for " + alias);
 
-        UpdateItemOutcome outcome = getUserTable().updateItem(updateItemSpec);
+        UpdateItemOutcome outcome = getTable().updateItem(updateItemSpec);
 
         System.out.println("Update succeeded:\n" + outcome.getItem().toJSONPretty());
-    }
-
-    private AuthToken makeAuthToken() {
-        AuthToken authToken = new AuthToken();
-
-        authTokenDAO.putAuthToken(authToken);
-
-        return authToken;
     }
 
     private void validatePassword(String dbPassword, String uiPassword) {
@@ -157,11 +174,10 @@ public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
     }
 
     private User extractUserFromItem(Item item) {
-        return new User(item.get("firstName").toString(),
-                item.get("lastName").toString(),
-                item.get("alias").toString(),
-                item.get("password").toString(),
-                item.get("imageURL").toString());
+        return new User(item.get(getFirstNameAttr()).toString(),
+                item.get(getLastNameAttr()).toString(),
+                item.get(getAliasAttr()).toString(),
+                item.get(getImageURLAttr()).toString());
     }
 
     private ByteArrayInputStream toStream(String image) {
@@ -208,15 +224,43 @@ public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
         return out;
     }
 
-    public Table getUserTable() {
-        return userTable;
-    }
-
     public S3Facade getS3() {
         return s3;
     }
 
     public String getS3BucketName() {
         return s3BucketName;
+    }
+
+    public String getItemType() {
+        return itemType;
+    }
+
+    public String getAliasAttr() {
+        return aliasAttr;
+    }
+
+    public String getFirstNameAttr() {
+        return firstNameAttr;
+    }
+
+    public String getLastNameAttr() {
+        return lastNameAttr;
+    }
+
+    public String getPasswordAttr() {
+        return passwordAttr;
+    }
+
+    public String getImageURLAttr() {
+        return imageURLAttr;
+    }
+
+    public String getFollowingCountAttr() {
+        return followingCountAttr;
+    }
+
+    public String getFollowerCountAttr() {
+        return followerCountAttr;
     }
 }

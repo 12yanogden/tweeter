@@ -10,7 +10,7 @@ import edu.byu.cs.tweeter.model.net.response.AuthenticateResponse;
  * An AWS lambda function that logs a user in and returns the user object and an auth code for
  * a successful login.
  */
-public class LoginHandler extends UserServiceHandler implements RequestHandler<AuthenticateRequest, AuthenticateResponse> {
+public class LoginHandler extends AuthenticateServiceHandler implements RequestHandler<AuthenticateRequest, AuthenticateResponse> {
     @Override
     public AuthenticateResponse handleRequest(AuthenticateRequest request, Context context) {
         validateAlias("alias", request.getAlias());

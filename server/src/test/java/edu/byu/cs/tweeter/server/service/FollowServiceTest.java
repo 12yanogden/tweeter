@@ -42,16 +42,16 @@ public class FollowServiceTest {
         Mockito.when(mockFollowingDAO.getPagedItems(request)).thenReturn(expectedResponse);
 
         followServiceSpy = Mockito.spy(FollowService.class);
-        Mockito.when(followServiceSpy.getDAO()).thenReturn(mockFollowingDAO);
+        Mockito.when(followServiceSpy.getFollowDAO()).thenReturn(mockFollowingDAO);
     }
 
     /**
-     * Verify that the {@link FollowService#getPagedItems(PagedRequest)}
+     * Verify that the {@link FollowService#getFollowing(PagedRequest)}
      * method returns the same result as the {@link DynamoDBFollowDAO} class.
      */
     @Test
     public void testGetFollowees_validRequest_correctResponse() {
-        PagedResponse<User> response = followServiceSpy.getPagedItems(request);
+        PagedResponse<User> response = followServiceSpy.getFollowing(request);
         Assert.assertEquals(expectedResponse, response);
     }
 }

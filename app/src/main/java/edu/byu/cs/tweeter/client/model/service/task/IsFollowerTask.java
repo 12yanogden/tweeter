@@ -43,7 +43,7 @@ public class IsFollowerTask extends AuthenticatedTask {
 
     @Override
     protected void runTask() throws IOException, TweeterRemoteException {
-        FollowRequest request = new FollowRequest(getFollower().getAlias(), getFollowee().getAlias());
+        FollowRequest request = new FollowRequest(getAuthToken(), getFollower(), getFollowee());
 
         IsFollowerResponse response = getServerFacade().request(request, getUrlPath(), IsFollowerResponse.class);
 

@@ -20,4 +20,8 @@ public class DynamoDBDAO {
     protected DynamoDBFacade getDynamoDB() {
         return dynamoDB;
     }
+
+    protected Table getTable() {
+        return table;
+    }
 }
