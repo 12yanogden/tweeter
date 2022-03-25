@@ -58,8 +58,7 @@ public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
         item = new Item()
                 .withPrimaryKey(
                         getAliasAttr(),
-                        user.getAlias())
-                .withString(
+                        user.getAlias(),
                         getFirstNameAttr(),
                         user.getFirstName())
                 .withString(

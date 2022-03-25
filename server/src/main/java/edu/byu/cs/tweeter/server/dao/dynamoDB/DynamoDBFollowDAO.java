@@ -82,6 +82,39 @@ public class DynamoDBFollowDAO extends DynamoDBDAO implements FollowDAO {
     }
 
     @Override
+    public List<User> getFollowers(String followeeAlias) {
+        ItemCollection<QueryOutcome> items = null;
+        Iterator<Item> iterator = null;
+        Item item = null;
+
+        HashMap<String, String> nameMap = new HashMap<String, String>();
+        nameMap.put("#followee", getFolloweeAliasAttr());
+
+        HashMap<String, Object> valueMap = new HashMap<String, Object>();
+        valueMap.put(":followee", followeeAlias);
+
+        QuerySpec querySpec = new QuerySpec().withKeyConditionExpression("#followee = :followee").withNameMap(nameMap)
+                .withValueMap(valueMap);
+        querySpec.withScanIndexForward(true);
+
+        List<User> followers = new ArrayList<>();
+
+        try {
+            items = getTable().query(querySpec);
+
+            iterator = items.iterator();
+            while (iterator.hasNext()) {
+                item = iterator.next();
+                followers.add(extractFollowerFromItem(item));
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        return followers;
+    }
+
+    @Override
     public boolean isFollower(String followeeAlias, String followerAlias) {
         GetItemSpec spec = new GetItemSpec().withPrimaryKey("followeeAlias", followeeAlias, "followerAlias", followerAlias);
         boolean isFollower = true;
@@ -96,6 +129,8 @@ public class DynamoDBFollowDAO extends DynamoDBDAO implements FollowDAO {
 
         return isFollower;
     }
+
+
 
     public Pair<List<User>, Boolean> queryFollowing(String followerAlias, int limit, String lastItemId) {
         ItemCollection<QueryOutcome> items = null;

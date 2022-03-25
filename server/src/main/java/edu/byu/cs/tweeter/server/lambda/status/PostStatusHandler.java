@@ -8,9 +8,9 @@ import edu.byu.cs.tweeter.model.net.response.Response;
 
 public class PostStatusHandler extends StatusServiceHandler implements RequestHandler<PostStatusRequest, Response> {
     @Override
-    public Response handleRequest(PostStatusRequest input, Context context) {
-        validateAlias("target user alias", input.getStatus().getUser().getAlias());
+    public Response handleRequest(PostStatusRequest request, Context context) {
+        validateAlias("target user alias", request.getStatus().getUser().getAlias());
 
-        return getService().postStatus(input);
+        return getService().postStatus(request);
     }
 }

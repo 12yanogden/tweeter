@@ -47,6 +47,34 @@ public class DynamoDBFeedDAO extends DynamoDBDAO implements FeedDAO {
 
     @Override
     public void putItem(String ownerAlias, Status status) {
+        Item item = new Item()
+                .withPrimaryKey(
+                        getOwnerAliasAttr(),
+                        ownerAlias,
+                        getDateTimeAttr(),
+                        status.getDate())
+                .withString(
+                        getPostAttr(),
+                        status.getPost())
+                .withList(
+                        getUrlsAttr(),
+                        status.getUrls())
+                .withList(
+                        getMentionsAttr(),
+                        status.getMentions())
+                .withString(
+                        getAuthorFirstNameAttr(),
+                        status.getUser().getFirstName())
+                .withString(
+                        getAuthorLastNameAttr(),
+                        status.getUser().getLastName())
+                .withString(
+                        getAuthorAliasAttr(),
+                        status.getUser().getAlias())
+                .withString(getAuthorImageURLAttr(),
+                        status.getUser().getImageUrl());
+
+        getDynamoDB().putItemInTable(getItemType(), item, getTable());
     }
 
     @Override
