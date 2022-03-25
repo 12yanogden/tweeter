@@ -3,23 +3,21 @@ package edu.byu.cs.tweeter.server.service;
 import java.util.List;
 
 import edu.byu.cs.tweeter.model.domain.Status;
-import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.PagedRequest;
 import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
 import edu.byu.cs.tweeter.model.net.response.PagedStatusResponse;
-import edu.byu.cs.tweeter.model.net.response.PagedUserResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.server.dao.DAOFactory;
-import edu.byu.cs.tweeter.server.dao.StatusDAO;
+import edu.byu.cs.tweeter.server.dao.StoryDAO;
 import edu.byu.cs.tweeter.util.Pair;
 
 public class StatusService extends AuthTokenService {
-    private StatusDAO statusDAO;
+    private StoryDAO storyDAO;
 
     public StatusService(DAOFactory factory) {
         super(factory);
 
-        statusDAO = factory.makeStatusDAO();
+        storyDAO = factory.makeStoryDAO();
     }
 
     public PagedStatusResponse getStory(PagedRequest request) {
@@ -67,7 +65,7 @@ public class StatusService extends AuthTokenService {
         return response;
     }
 
-    protected StatusDAO getStatusDAO() {
-        return statusDAO;
+    protected StoryDAO getStatusDAO() {
+        return storyDAO;
     }
 }

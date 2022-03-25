@@ -15,63 +15,42 @@ import java.util.Map;
 
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
-import edu.byu.cs.tweeter.model.net.response.Response;
-import edu.byu.cs.tweeter.server.dao.StatusDAO;
-import edu.byu.cs.tweeter.util.FakeData;
+import edu.byu.cs.tweeter.server.dao.FeedDAO;
 import edu.byu.cs.tweeter.util.Pair;
 
-public class DynamoDBStatusDAO extends DynamoDBDAO implements StatusDAO {
+public class DynamoDBFeedDAO extends DynamoDBDAO implements FeedDAO {
     private String itemType;
-    private String aliasAttr;
+    private String ownerAliasAttr;
     private String dateTimeAttr;
     private String postAttr;
     private String urlsAttr;
     private String mentionsAttr;
-    private String firstNameAttr;
-    private String lastNameAttr;
-    private String imageURLAttr;
+    private String authorFirstNameAttr;
+    private String authorLastNameAttr;
+    private String authorAliasAttr;
+    private String authorImageURLAttr;
 
-    public DynamoDBStatusDAO() {
-        super("status");
+    public DynamoDBFeedDAO() {
+        super("feed");
 
         itemType = "status";
-        aliasAttr = "alias";
+        ownerAliasAttr = "ownerAlias";
         dateTimeAttr = "dateTime";
         postAttr = "post";
         urlsAttr = "urls";
         mentionsAttr = "mentions";
-        firstNameAttr = "firstName";
-        lastNameAttr = "lastName";
-        imageURLAttr = "imageURL";
+        authorFirstNameAttr = "firstName";
+        authorLastNameAttr = "lastName";
+        authorAliasAttr = "alias";
+        authorImageURLAttr = "imageURL";
     }
 
     @Override
-    public void putItem(Status status) {
-        Item item = new Item()
-                .withPrimaryKey(
-                        getAliasAttr(),
-                        status.getUser().getAlias(),
-                        getDateTimeAttr(),
-                        status.getDate())
-                .withString(
-                        getPostAttr(),
-                        status.getPost())
-                .withList(getUrlsAttr(),
-                        status.getUrls())
-                .withList(getMentionsAttr(),
-                        status.getMentions())
-                .withString(getFirstNameAttr(),
-                        status.getUser().getFirstName())
-                .withString(getLastNameAttr(),
-                        status.getUser().getLastName())
-                .withString(getImageURLAttr(),
-                        status.getUser().getImageUrl());
-
-        getDynamoDB().putItemInTable(getItemType(), item, getTable());
+    public void putItem(String ownerAlias, Status status) {
     }
 
     @Override
-    public Pair<List<Status>, Boolean> queryStory(String alias, int limit, String lastItemId) {
+    public Pair<List<Status>, Boolean> queryFeed(String ownerAlias, int limit, String lastItemId) {
         ItemCollection<QueryOutcome> items = null;
         Map<String, AttributeValue> lastEvaluatedKey = null;
         Iterator<Item> iterator = null;
@@ -79,17 +58,17 @@ public class DynamoDBStatusDAO extends DynamoDBDAO implements StatusDAO {
         boolean hasMoreItems = true;
 
         HashMap<String, String> nameMap = new HashMap<String, String>();
-        nameMap.put("#user", getAliasAttr());
+        nameMap.put("#owner", getOwnerAliasAttr());
 
         HashMap<String, Object> valueMap = new HashMap<String, Object>();
-        valueMap.put(":user", alias);
+        valueMap.put(":owner", ownerAlias);
 
-        QuerySpec querySpec = new QuerySpec().withKeyConditionExpression("#user = :user").withNameMap(nameMap)
+        QuerySpec querySpec = new QuerySpec().withKeyConditionExpression("#owner = :owner").withNameMap(nameMap)
                 .withValueMap(valueMap);
         querySpec.withScanIndexForward(true);
         querySpec.withMaxResultSize(limit);
 
-        List<Status> story = new ArrayList<>();
+        List<Status> feed = new ArrayList<>();
 
         while(true) {
             try {
@@ -98,7 +77,7 @@ public class DynamoDBStatusDAO extends DynamoDBDAO implements StatusDAO {
                 iterator = items.iterator();
                 while (iterator.hasNext()) {
                     item = iterator.next();
-                    story.add(extractStatusFromItem(item));
+                    feed.add(extractStatusFromItem(item));
                 }
 
                 lastEvaluatedKey = items.getLastLowLevelResult().getQueryResult().getLastEvaluatedKey();
@@ -114,7 +93,7 @@ public class DynamoDBStatusDAO extends DynamoDBDAO implements StatusDAO {
             }
         }
 
-        return new Pair<>(story, hasMoreItems);
+        return new Pair<>(feed, hasMoreItems);
     }
 
     private Status extractStatusFromItem(Item item) {
@@ -126,28 +105,25 @@ public class DynamoDBStatusDAO extends DynamoDBDAO implements StatusDAO {
     }
 
     private User extractUserFromItem(Item item) {
-        return new User(item.get(getFirstNameAttr()).toString(),
-                item.get(getLastNameAttr()).toString(),
-                item.get(getAliasAttr()).toString(),
-                item.get(getImageURLAttr()).toString());
+        return new User(item.get(getAuthorFirstNameAttr()).toString(),
+                item.get(getAuthorLastNameAttr()).toString(),
+                item.get(getAuthorAliasAttr()).toString(),
+                item.get(getAuthorImageURLAttr()).toString());
     }
 
     private PrimaryKey calcPrimaryKey(Map<String, AttributeValue> lastEvaluatedKey) {
-        return new PrimaryKey(getAliasAttr(),
-                lastEvaluatedKey.get(getAliasAttr()).getS());
-    }
-
-    @Override
-    public Pair<List<Status>, Boolean> queryFeed(String targetUserAlias, int limit, String lastItemId) {
-        return null;
+        return new PrimaryKey(getOwnerAliasAttr(),
+                lastEvaluatedKey.get(getOwnerAliasAttr()).getS(),
+                getDateTimeAttr(),
+                lastEvaluatedKey.get(getDateTimeAttr()));
     }
 
     public String getItemType() {
         return itemType;
     }
 
-    public String getAliasAttr() {
-        return aliasAttr;
+    public String getOwnerAliasAttr() {
+        return ownerAliasAttr;
     }
 
     public String getDateTimeAttr() {
@@ -166,15 +142,19 @@ public class DynamoDBStatusDAO extends DynamoDBDAO implements StatusDAO {
         return mentionsAttr;
     }
 
-    public String getFirstNameAttr() {
-        return firstNameAttr;
+    public String getAuthorFirstNameAttr() {
+        return authorFirstNameAttr;
     }
 
-    public String getLastNameAttr() {
-        return lastNameAttr;
+    public String getAuthorLastNameAttr() {
+        return authorLastNameAttr;
     }
 
-    public String getImageURLAttr() {
-        return imageURLAttr;
+    public String getAuthorAliasAttr() {
+        return authorAliasAttr;
+    }
+
+    public String getAuthorImageURLAttr() {
+        return authorImageURLAttr;
     }
 }

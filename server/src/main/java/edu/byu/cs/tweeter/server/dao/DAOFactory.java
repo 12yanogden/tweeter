@@ -3,6 +3,7 @@ package edu.byu.cs.tweeter.server.dao;
 public interface DAOFactory {
     AuthTokenDAO makeAuthTokenDAO();
     FollowDAO makeFollowDAO();
-    StatusDAO makeStatusDAO();
+    StoryDAO makeStoryDAO();
+    FeedDAO makeFeedDAO();
     UserDAO makeUserDAO();
 }
