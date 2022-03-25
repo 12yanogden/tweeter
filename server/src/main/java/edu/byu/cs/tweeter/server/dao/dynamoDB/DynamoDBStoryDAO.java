@@ -69,13 +69,35 @@ public class DynamoDBStoryDAO extends DynamoDBDAO implements StoryDAO {
     }
 
     @Override
-    public Pair<List<Status>, Boolean> queryStory(String alias, int limit, String lastItemId) {
-        ItemCollection<QueryOutcome> items = null;
-        Map<String, AttributeValue> lastEvaluatedKey = null;
-        Iterator<Item> iterator = null;
-        Item item = null;
+    public Pair<List<Status>, Boolean> queryStory(String alias, int limit, Pair<String, String> lastItemId) {
+        ItemCollection<QueryOutcome> items;
+        Iterator<Item> iterator;
+        Item item;
         boolean hasMoreItems = true;
+        QuerySpec querySpec = makeQuerySpec(alias, limit, lastItemId);
+        List<Status> story = new ArrayList<>();
 
+        try {
+            items = getTable().query(querySpec);
+
+            iterator = items.iterator();
+            while (iterator.hasNext()) {
+                item = iterator.next();
+                story.add(extractStatusFromItem(item));
+            }
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        if (story.size() < limit) {
+            hasMoreItems = false;
+        }
+
+        return new Pair<>(story, hasMoreItems);
+    }
+
+    private QuerySpec makeQuerySpec(String alias, int limit, Pair<String, String> lastItemId) {
         HashMap<String, String> nameMap = new HashMap<String, String>();
         nameMap.put("#user", getAliasAttr());
 
@@ -87,32 +109,11 @@ public class DynamoDBStoryDAO extends DynamoDBDAO implements StoryDAO {
         querySpec.withScanIndexForward(true);
         querySpec.withMaxResultSize(limit);
 
-        List<Status> story = new ArrayList<>();
-
-        while(true) {
-            try {
-                items = getTable().query(querySpec);
-
-                iterator = items.iterator();
-                while (iterator.hasNext()) {
-                    item = iterator.next();
-                    story.add(extractStatusFromItem(item));
-                }
-
-                lastEvaluatedKey = items.getLastLowLevelResult().getQueryResult().getLastEvaluatedKey();
-
-                if (lastEvaluatedKey == null) {
-                    hasMoreItems = false;
-                    break;
-                } else {
-                    querySpec.withExclusiveStartKey(calcPrimaryKey(lastEvaluatedKey));
-                }
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
+        if (lastItemId != null) {
+            querySpec.withExclusiveStartKey(pairToKey(lastItemId));
         }
 
-        return new Pair<>(story, hasMoreItems);
+        return querySpec;
     }
 
     private Status extractStatusFromItem(Item item) {
@@ -130,11 +131,11 @@ public class DynamoDBStoryDAO extends DynamoDBDAO implements StoryDAO {
                 item.get(getImageURLAttr()).toString());
     }
 
-    private PrimaryKey calcPrimaryKey(Map<String, AttributeValue> lastEvaluatedKey) {
+    private PrimaryKey pairToKey(Pair<String, String> pair) {
         return new PrimaryKey(getAliasAttr(),
-                lastEvaluatedKey.get(getAliasAttr()).getS(),
+                pair.getFirst(),
                 getDateTimeAttr(),
-                lastEvaluatedKey.get(getDateTimeAttr()));
+                pair.getSecond());
     }
 
     public String getItemType() {

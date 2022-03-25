@@ -25,7 +25,14 @@ public class PagedStatusTask extends PagedTask<Status> {
         return getServerFacade().request(request, urlPath, PagedStatusResponse.class);
     }
 
-    protected String getLastItemId(Status status) {
-        return status == null ? null : status.getPost();
+    @Override
+    protected Pair<String, String> getLastItemId(User targetUser, Status status) {
+        Pair<String, String> lastItemId = null;
+
+        if (status != null) {
+            lastItemId = new Pair<>(status.getUser().getAlias(), status.getDate());
+        }
+
+        return lastItemId;
     }
 }

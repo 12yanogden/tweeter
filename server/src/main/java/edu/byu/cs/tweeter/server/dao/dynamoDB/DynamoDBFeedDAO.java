@@ -78,50 +78,58 @@ public class DynamoDBFeedDAO extends DynamoDBDAO implements FeedDAO {
     }
 
     @Override
-    public Pair<List<Status>, Boolean> queryFeed(String ownerAlias, int limit, String lastItemId) {
-        ItemCollection<QueryOutcome> items = null;
-        Map<String, AttributeValue> lastEvaluatedKey = null;
-        Iterator<Item> iterator = null;
-        Item item = null;
+    public Pair<List<Status>, Boolean> queryFeed(String ownerAlias, int limit, Pair<String, String> lastItemId) {
+        ItemCollection<QueryOutcome> items;
+        Iterator<Item> iterator;
+        Item item;
         boolean hasMoreItems = true;
+        QuerySpec querySpec = makeQuerySpec(ownerAlias, limit, lastItemId);
+        List<Status> feed = new ArrayList<>();
 
+        try {
+            items = getTable().query(querySpec);
+
+            iterator = items.iterator();
+            while (iterator.hasNext()) {
+                item = iterator.next();
+                feed.add(extractStatusFromItem(item));
+            }
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        if (feed.size() < limit) {
+            hasMoreItems = false;
+        }
+
+        return new Pair<>(feed, hasMoreItems);
+    }
+
+    private QuerySpec makeQuerySpec(String ownerAlias, int limit, Pair<String, String> lastItemId) {
         HashMap<String, String> nameMap = new HashMap<String, String>();
-        nameMap.put("#owner", getOwnerAliasAttr());
+        nameMap.put("#user", getOwnerAliasAttr());
 
         HashMap<String, Object> valueMap = new HashMap<String, Object>();
-        valueMap.put(":owner", ownerAlias);
+        valueMap.put(":user", ownerAlias);
 
-        QuerySpec querySpec = new QuerySpec().withKeyConditionExpression("#owner = :owner").withNameMap(nameMap)
+        QuerySpec querySpec = new QuerySpec().withKeyConditionExpression("#user = :user").withNameMap(nameMap)
                 .withValueMap(valueMap);
         querySpec.withScanIndexForward(true);
         querySpec.withMaxResultSize(limit);
 
-        List<Status> feed = new ArrayList<>();
-
-        while(true) {
-            try {
-                items = getTable().query(querySpec);
-
-                iterator = items.iterator();
-                while (iterator.hasNext()) {
-                    item = iterator.next();
-                    feed.add(extractStatusFromItem(item));
-                }
-
-                lastEvaluatedKey = items.getLastLowLevelResult().getQueryResult().getLastEvaluatedKey();
-
-                if (lastEvaluatedKey == null) {
-                    hasMoreItems = false;
-                    break;
-                } else {
-                    querySpec.withExclusiveStartKey(calcPrimaryKey(lastEvaluatedKey));
-                }
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
+        if (lastItemId != null) {
+            querySpec.withExclusiveStartKey(pairToKey(lastItemId));
         }
 
-        return new Pair<>(feed, hasMoreItems);
+        return querySpec;
+    }
+
+    private PrimaryKey pairToKey(Pair<String, String> pair) {
+        return new PrimaryKey(getOwnerAliasAttr(),
+                pair.getFirst(),
+                getDateTimeAttr(),
+                pair.getSecond());
     }
 
     private Status extractStatusFromItem(Item item) {
@@ -137,13 +145,6 @@ public class DynamoDBFeedDAO extends DynamoDBDAO implements FeedDAO {
                 item.get(getAuthorLastNameAttr()).toString(),
                 item.get(getAuthorAliasAttr()).toString(),
                 item.get(getAuthorImageURLAttr()).toString());
-    }
-
-    private PrimaryKey calcPrimaryKey(Map<String, AttributeValue> lastEvaluatedKey) {
-        return new PrimaryKey(getOwnerAliasAttr(),
-                lastEvaluatedKey.get(getOwnerAliasAttr()).getS(),
-                getDateTimeAttr(),
-                lastEvaluatedKey.get(getDateTimeAttr()));
     }
 
     public String getItemType() {

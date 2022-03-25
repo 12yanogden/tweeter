@@ -54,6 +54,7 @@ public class DynamoDBFacade {
             outcome = table.getItem(spec);
 
             System.out.println("Get " + itemType + " succeeded: " + outcome);
+
         } catch (Exception e) {
             System.out.println(e.getMessage());
             e.printStackTrace();

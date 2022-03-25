@@ -13,6 +13,7 @@ import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
 import edu.byu.cs.tweeter.model.net.request.PagedRequest;
 import edu.byu.cs.tweeter.model.net.response.PagedResponse;
+import edu.byu.cs.tweeter.util.Pair;
 
 public abstract class PagedTask<T> extends AuthenticatedTask {
     private static final String LOG_TAG = "PagedTask";
@@ -60,7 +61,7 @@ public abstract class PagedTask<T> extends AuthenticatedTask {
     @Override
     protected void runTask() throws IOException, TweeterRemoteException {
         String targetUserAlias = getTargetUser() == null ? null : getTargetUser().getAlias();
-        String lastItemId = getLastItemId(getLastItem());
+        Pair<String, String> lastItemId = getLastItemId(getTargetUser(), getLastItem());
 
         PagedRequest request = new PagedRequest(getAuthToken(), targetUserAlias, getLimit(), lastItemId);
         PagedResponse<T> response = request(request, getUrlPath());
@@ -77,7 +78,7 @@ public abstract class PagedTask<T> extends AuthenticatedTask {
 
     protected abstract PagedResponse<T> request(PagedRequest request, String urlPath) throws IOException, TweeterRemoteException;
 
-    protected abstract String getLastItemId(T lastItem);
+    protected abstract Pair<String, String> getLastItemId(User targetUser, T lastItem);
 
     @Override
     protected void loadSuccessBundle(Bundle msgBundle) {

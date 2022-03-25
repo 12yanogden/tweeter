@@ -87,8 +87,8 @@ public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
 
     @Override
     public User getUser(String alias) {
-        GetItemSpec spec = new GetItemSpec().withPrimaryKey("alias", alias);
-        Item dbResponse = getDynamoDB().getItemFromTable("user", spec, getTable());
+        GetItemSpec spec = new GetItemSpec().withPrimaryKey(getAliasAttr(), alias);
+        Item dbResponse = getDynamoDB().getItemFromTable(getItemType(), spec, getTable());
 
         return extractUserFromItem(dbResponse);
     }

@@ -25,14 +25,13 @@ public abstract class AuthTokenService extends FactoryService {
     }
 
     protected boolean validateAuthToken(AuthToken clientAuthToken) {
-        AuthToken dbAuthToken = getAuthTokenDAO().getAuthToken(clientAuthToken.getToken());
         long clientEpoch = dateTimeToEpoch(clientAuthToken.getDatetime());
         long expiresEpoch = incrementEpochByMins(clientEpoch, getExpirationInMins());
         long currentEpoch = dateTimeToEpoch(calcCurrentDateTime());
         boolean isValid = true;
 
         if (currentEpoch > expiresEpoch) {
-            getAuthTokenDAO().deleteAuthToken(dbAuthToken.getToken());
+            getAuthTokenDAO().deleteAuthToken(clientAuthToken.getToken());
 
             isValid = false;
         }

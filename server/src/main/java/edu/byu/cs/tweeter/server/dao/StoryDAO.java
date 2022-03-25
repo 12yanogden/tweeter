@@ -7,5 +7,5 @@ import edu.byu.cs.tweeter.util.Pair;
 
 public interface StoryDAO extends PagedDAO<Status> {
     void putItem(Status status);
-    Pair<List<Status>, Boolean> queryStory(String alias, int limit, String lastItemId);
+    Pair<List<Status>, Boolean> queryStory(String alias, int limit, Pair<String, String> lastItemId);
 }

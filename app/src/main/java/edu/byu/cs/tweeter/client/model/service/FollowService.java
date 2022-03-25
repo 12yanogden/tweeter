@@ -13,6 +13,8 @@ import edu.byu.cs.tweeter.client.model.service.observerInterface.PagedObserverIn
 import edu.byu.cs.tweeter.client.model.service.observerInterface.UserObserverInterface;
 import edu.byu.cs.tweeter.client.model.service.task.FollowCountTask;
 import edu.byu.cs.tweeter.client.model.service.task.FollowUnfollowTask;
+import edu.byu.cs.tweeter.client.model.service.task.GetFollowersTask;
+import edu.byu.cs.tweeter.client.model.service.task.GetFollowingTask;
 import edu.byu.cs.tweeter.client.model.service.task.IsFollowerTask;
 import edu.byu.cs.tweeter.client.model.service.task.PagedUserTask;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
@@ -50,11 +52,11 @@ public class FollowService extends ModelService {
      * @param lastFollowee the last followee returned in the previous request (can be null).
      */
     public void getFollowing(AuthToken authToken, User targetUser, int limit, User lastFollowee, PagedObserverInterface<User> observer) {
-        execute(getPagedUserTask(authToken, targetUser, limit, lastFollowee, observer, "/getfollowing"));
+        execute(getGetFollowingTask(authToken, targetUser, limit, lastFollowee, observer, "/getfollowing"));
     }
 
     public void getFollowers(AuthToken authToken, User user, int pageSize, User lastFollowee, PagedObserverInterface<User> observer) {
-        execute(getPagedUserTask(authToken, user, pageSize, lastFollowee, observer, "/getfollowers"));
+        execute(getGetFollowersTask(authToken, user, pageSize, lastFollowee, observer, "/getfollowers"));
     }
 
     public void isFollower(AuthToken authToken, User user, User selectedUser, IsFollowerObserverInterface observer) {
@@ -85,8 +87,12 @@ public class FollowService extends ModelService {
         return new FollowUnfollowTask(authToken, targetUser, selectedUser, new UserHandler(observer), getServerFacade(), urlPath);
     }
 
-    private PagedUserTask getPagedUserTask(AuthToken authToken, User user, int pageSize, User lastFollowee, PagedObserverInterface<User> observer, String urlPath) {
-        return new PagedUserTask(authToken, user, pageSize, lastFollowee, new PagedHandler<>(observer), getServerFacade(), urlPath);
+    private GetFollowingTask getGetFollowingTask(AuthToken authToken, User user, int pageSize, User lastFollowee, PagedObserverInterface<User> observer, String urlPath) {
+        return new GetFollowingTask(authToken, user, pageSize, lastFollowee, new PagedHandler<>(observer), getServerFacade(), urlPath);
+    }
+
+    private GetFollowersTask getGetFollowersTask(AuthToken authToken, User user, int pageSize, User lastFollowee, PagedObserverInterface<User> observer, String urlPath) {
+        return new GetFollowersTask(authToken, user, pageSize, lastFollowee, new PagedHandler<>(observer), getServerFacade(), urlPath);
     }
 
     private FollowCountTask getFollowCountTask(AuthToken authToken, User selectedUser, CountObserverInterface observer, String urlPath) {

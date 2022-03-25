@@ -1,11 +1,12 @@
 package edu.byu.cs.tweeter.model.net.request;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
+import edu.byu.cs.tweeter.util.Pair;
 
 public class PagedRequest extends AuthenticatedRequest {
     private String targetUserAlias;
     private int limit;
-    private String lastItemId;
+    private Pair<String, String> lastItemId;
 
     /**
      * Allows construction of the object from Json. Private so it won't be called in normal code.
@@ -14,7 +15,7 @@ public class PagedRequest extends AuthenticatedRequest {
         super();
     }
 
-    public PagedRequest(AuthToken authToken, String userAlias, int limit, String lastItemId) {
+    public PagedRequest(AuthToken authToken, String userAlias, int limit, Pair<String, String> lastItemId) {
         super(authToken);
 
         this.targetUserAlias = userAlias;
@@ -38,11 +39,11 @@ public class PagedRequest extends AuthenticatedRequest {
         this.limit = limit;
     }
 
-    public String getLastItemId() {
+    public Pair<String, String> getLastItemId() {
         return lastItemId;
     }
 
-    public void setLastItemId(String lastItemId) {
+    public void setLastItemId(Pair<String, String> lastItemId) {
         this.lastItemId = lastItemId;
     }
 }

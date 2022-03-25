@@ -8,13 +8,11 @@ import com.amazonaws.services.dynamodbv2.document.QueryOutcome;
 import com.amazonaws.services.dynamodbv2.document.spec.DeleteItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.server.dao.FollowDAO;
@@ -127,15 +125,73 @@ public class DynamoDBFollowDAO extends DynamoDBDAO implements FollowDAO {
         return isFollower;
     }
 
-
-
-    public Pair<List<User>, Boolean> queryFollowing(String followerAlias, int limit, String lastItemId) {
-        ItemCollection<QueryOutcome> items = null;
-        Map<String, AttributeValue> lastEvaluatedKey = null;
-        Iterator<Item> iterator = null;
-        Item item = null;
+    @Override
+    public Pair<List<User>, Boolean> queryFollowing(String followerAlias, int limit, Pair<String, String> lastItemId) {
+        ItemCollection<QueryOutcome> items;
+        Iterator<Item> iterator;
+        Item item;
         boolean hasMoreItems = true;
+        QuerySpec querySpec = makeFollowingQuerySpec(followerAlias, limit, lastItemId);
+        List<User> following = new ArrayList<>();
 
+        try {
+            Index index = getTable().getIndex(getFollowerAliasAttr() + "-" + getFolloweeAliasAttr() + "-index");
+            items = index.query(querySpec);
+
+            iterator = items.iterator();
+            while (iterator.hasNext()) {
+                item = iterator.next();
+                following.add(extractFolloweeFromItem(item));
+            }
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        if (following.size() < limit) {
+            hasMoreItems = false;
+        }
+
+        return new Pair<>(following, hasMoreItems);
+    }
+
+    @Override
+    public Pair<List<User>, Boolean> queryFollowers(String followeeAlias, int limit, Pair<String, String> lastItemId) {
+        ItemCollection<QueryOutcome> items;
+        Iterator<Item> iterator;
+        Item item;
+        boolean hasMoreItems = true;
+        QuerySpec querySpec = makeFollowersQuerySpec(followeeAlias, limit, lastItemId);
+        List<User> followers = new ArrayList<>();
+
+        try {
+            items = getTable().query(querySpec);
+
+            iterator = items.iterator();
+            while (iterator.hasNext()) {
+                item = iterator.next();
+                followers.add(extractFollowerFromItem(item));
+            }
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        if (followers.size() < limit) {
+            hasMoreItems = false;
+        }
+
+        return new Pair<>(followers, hasMoreItems);
+    }
+
+    private PrimaryKey pairToKey(Pair<String, String> pair) {
+        return new PrimaryKey(getFolloweeAliasAttr(),
+                pair.getFirst(),
+                getFollowerAliasAttr(),
+                pair.getSecond());
+    }
+
+    private QuerySpec makeFollowingQuerySpec(String followerAlias, int limit, Pair<String, String> lastItemId) {
         HashMap<String, String> nameMap = new HashMap<String, String>();
         nameMap.put("#user", getFollowerAliasAttr());
 
@@ -147,43 +203,14 @@ public class DynamoDBFollowDAO extends DynamoDBDAO implements FollowDAO {
         querySpec.withScanIndexForward(true);
         querySpec.withMaxResultSize(limit);
 
-        List<User> following = new ArrayList<>();
-
-        while(true) {
-            try {
-                Index index = getTable().getIndex(getFollowerAliasAttr() + "-" + getFolloweeAliasAttr() + "-index");
-                items = index.query(querySpec);
-
-                iterator = items.iterator();
-                while (iterator.hasNext()) {
-                    item = iterator.next();
-                    following.add(extractFolloweeFromItem(item));
-                }
-
-                lastEvaluatedKey = items.getLastLowLevelResult().getQueryResult().getLastEvaluatedKey();
-
-                if (lastEvaluatedKey == null) {
-                    hasMoreItems = false;
-                    break;
-                } else {
-                    querySpec.withExclusiveStartKey(calcPrimaryKey(lastEvaluatedKey));
-                }
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
+        if (lastItemId != null) {
+            querySpec.withExclusiveStartKey(pairToKey(lastItemId));
         }
 
-        return new Pair<>(following, hasMoreItems);
+        return querySpec;
     }
 
-    @Override
-    public Pair<List<User>, Boolean> queryFollowers(String followeeAlias, int limit, String lastItemId) {
-        ItemCollection<QueryOutcome> items = null;
-        Map<String, AttributeValue> lastEvaluatedKey = null;
-        Iterator<Item> iterator = null;
-        Item item = null;
-        boolean hasMoreItems = true;
-
+    private QuerySpec makeFollowersQuerySpec(String followeeAlias, int limit, Pair<String, String> lastItemId) {
         HashMap<String, String> nameMap = new HashMap<String, String>();
         nameMap.put("#user", getFolloweeAliasAttr());
 
@@ -195,32 +222,11 @@ public class DynamoDBFollowDAO extends DynamoDBDAO implements FollowDAO {
         querySpec.withScanIndexForward(true);
         querySpec.withMaxResultSize(limit);
 
-        List<User> followers = new ArrayList<>();
-
-        while(true) {
-            try {
-                items = getTable().query(querySpec);
-
-                iterator = items.iterator();
-                while (iterator.hasNext()) {
-                    item = iterator.next();
-                    followers.add(extractFollowerFromItem(item));
-                }
-
-                lastEvaluatedKey = items.getLastLowLevelResult().getQueryResult().getLastEvaluatedKey();
-
-                if (lastEvaluatedKey == null) {
-                    hasMoreItems = false;
-                    break;
-                } else {
-                    querySpec.withExclusiveStartKey(calcPrimaryKey(lastEvaluatedKey));
-                }
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
+        if (lastItemId != null) {
+            querySpec.withExclusiveStartKey(pairToKey(lastItemId));
         }
 
-        return new Pair<>(followers, hasMoreItems);
+        return querySpec;
     }
 
     private User extractFolloweeFromItem(Item item) {
@@ -228,13 +234,6 @@ public class DynamoDBFollowDAO extends DynamoDBDAO implements FollowDAO {
                 item.get(getFolloweeLastNameAttr()).toString(),
                 item.get(getFolloweeAliasAttr()).toString(),
                 item.get(getFolloweeImageURLAttr()).toString());
-    }
-
-    private PrimaryKey calcPrimaryKey(Map<String, AttributeValue> lastEvaluatedKey) {
-        return new PrimaryKey(getFolloweeAliasAttr(),
-                lastEvaluatedKey.get(getFolloweeAliasAttr()).getS(),
-                getFollowerAliasAttr(),
-                lastEvaluatedKey.get(getFollowerAliasAttr()).getS());
     }
 
     private User extractFollowerFromItem(Item item) {

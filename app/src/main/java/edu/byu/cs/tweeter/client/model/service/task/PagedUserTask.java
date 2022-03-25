@@ -15,7 +15,7 @@ import edu.byu.cs.tweeter.model.net.response.PagedResponse;
 import edu.byu.cs.tweeter.model.net.response.PagedUserResponse;
 import edu.byu.cs.tweeter.util.Pair;
 
-public class PagedUserTask extends PagedTask<User> {
+public abstract class PagedUserTask extends PagedTask<User> {
     public PagedUserTask(AuthToken authToken, User targetUser, int limit, User lastItem, Handler messageHandler, ServerFacade facade, String urlPath) {
         super(authToken, targetUser, limit, lastItem, messageHandler, facade, urlPath);
     }
@@ -23,9 +23,5 @@ public class PagedUserTask extends PagedTask<User> {
     @Override
     protected PagedUserResponse request(PagedRequest request, String urlPath) throws IOException, TweeterRemoteException {
         return getServerFacade().request(request, urlPath, PagedUserResponse.class);
-    }
-
-    protected String getLastItemId(User status) {
-        return status == null ? null : status.getAlias();
     }
 }
