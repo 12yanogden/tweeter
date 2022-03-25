@@ -39,7 +39,7 @@ public class FollowServiceTest {
         // Setup a mock FollowDAO that will return known responses
         expectedResponse = new PagedResponse<>(Arrays.asList(resultUser1, resultUser2, resultUser3), false);
         mockFollowingDAO = Mockito.mock(DynamoDBFollowDAO.class);
-        Mockito.when(mockFollowingDAO.getPagedItems(request)).thenReturn(expectedResponse);
+//        Mockito.when(mockFollowingDAO.queryFollowing(request)).thenReturn(expectedResponse);
 
         followServiceSpy = Mockito.spy(FollowService.class);
         Mockito.when(followServiceSpy.getFollowDAO()).thenReturn(mockFollowingDAO);

@@ -35,7 +35,7 @@ public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
         super("user");
 
         s3 = new S3Facade(getRegion());
-        s3BucketName = "tweeter";
+        s3BucketName = "ogden9-tweeter";
         itemType = "user";
         aliasAttr = "alias";
         firstNameAttr = "firstName";
@@ -53,7 +53,10 @@ public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
 
         // TODO: Validate user alias is unique
 
-        imageURL = getS3().putStreamInBucket(getS3BucketName(), user.getAlias(), toStream(image), makeMetadata("image/png"));
+        imageURL = getS3().putStreamInBucket(getS3BucketName(),
+                                    user.getAlias() + ".png",
+                                                toStream(image),
+                                                makeMetadata("image/png"));
 
         item = new Item()
                 .withPrimaryKey(
@@ -69,7 +72,7 @@ public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
                         hash(password))
                 .withString(
                         getImageURLAttr(),
-                        user.getImageUrl())
+                        imageURL)
                 .withInt(
                         getFollowingCountAttr(),
                         0)
@@ -164,12 +167,6 @@ public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
         UpdateItemOutcome outcome = getTable().updateItem(updateItemSpec);
 
         System.out.println("Update succeeded:\n" + outcome.getItem().toJSONPretty());
-    }
-
-    private void validatePassword(String dbPassword, String uiPassword) {
-        if (!hash(uiPassword).equals(dbPassword)) {
-            throw new RuntimeException("[Bad Request] Invalid password");
-        }
     }
 
     private User extractUserFromItem(Item item) {

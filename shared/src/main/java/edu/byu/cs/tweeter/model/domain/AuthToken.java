@@ -25,7 +25,7 @@ public class AuthToken implements Serializable {
     }
 
     private String calcDateTime() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d yyyy h:mm aaa");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d yyyy h:mm a");
         LocalDateTime now = LocalDateTime.now();
 
         return formatter.format(now);

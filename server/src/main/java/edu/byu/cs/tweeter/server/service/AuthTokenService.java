@@ -13,6 +13,7 @@ public abstract class AuthTokenService extends FactoryService {
     private AuthTokenDAO authTokenDAO;
     private String invalidTokenMsg;
     private int expirationInMins;
+    private String dateTimePattern;
 
     public AuthTokenService(DAOFactory factory) {
         super(factory);
@@ -20,6 +21,7 @@ public abstract class AuthTokenService extends FactoryService {
         authTokenDAO = factory.makeAuthTokenDAO();
         invalidTokenMsg = "authToken has expired";
         expirationInMins = 30;
+        dateTimePattern = "MMM d yyyy h:mm a";
     }
 
     protected boolean validateAuthToken(AuthToken clientAuthToken) {
@@ -39,7 +41,7 @@ public abstract class AuthTokenService extends FactoryService {
     }
 
     private String calcCurrentDateTime() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d yyyy h:mm aaa");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(getDateTimePattern());
         LocalDateTime now = LocalDateTime.now();
 
         return formatter.format(now);
@@ -52,7 +54,7 @@ public abstract class AuthTokenService extends FactoryService {
     }
 
     private long dateTimeToEpoch(String dateTime) {
-        SimpleDateFormat format = new SimpleDateFormat("MMM d yyyy h:mm aaa");
+        SimpleDateFormat format = new SimpleDateFormat(getDateTimePattern());
         long epoch;
 
         try {
@@ -79,5 +81,9 @@ public abstract class AuthTokenService extends FactoryService {
 
     public int getExpirationInMins() {
         return expirationInMins;
+    }
+
+    public String getDateTimePattern() {
+        return dateTimePattern;
     }
 }

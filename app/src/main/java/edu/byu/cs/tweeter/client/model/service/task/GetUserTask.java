@@ -17,6 +17,7 @@ import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
 public class GetUserTask extends UserTask {
     private static final String LOG_TAG = "GetUserTask";
     private final String alias;
+    private User user;
 
     public GetUserTask(AuthToken authToken, String alias, Handler messageHandler, ServerFacade facade, String urlPath) {
         super(authToken, messageHandler, facade, urlPath);
@@ -26,8 +27,6 @@ public class GetUserTask extends UserTask {
 
     @Override
     protected User getUser() {
-        User user = getFakeData().findUserByAlias(alias);
-
         return user;
     }
 
@@ -37,6 +36,8 @@ public class GetUserTask extends UserTask {
         GetUserResponse response = getServerFacade().request(request, getUrlPath(), GetUserResponse.class);
 
         if(response.isSuccess()) {
+            setUser(response.getUser());
+
             sendSuccessMessage();
         } else {
             sendFailedMessage(response.getMessage());
@@ -45,5 +46,9 @@ public class GetUserTask extends UserTask {
 
     public String getAlias() {
         return alias;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

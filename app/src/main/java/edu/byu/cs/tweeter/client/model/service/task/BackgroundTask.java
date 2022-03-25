@@ -9,8 +9,6 @@ import java.io.IOException;
 
 import edu.byu.cs.tweeter.client.model.net.ServerFacade;
 import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
-import edu.byu.cs.tweeter.model.net.response.Response;
-import edu.byu.cs.tweeter.util.FakeData;
 
 public abstract class BackgroundTask implements Runnable {
     private static final String LOG_TAG = "BackgroundTask";
@@ -70,11 +68,6 @@ public abstract class BackgroundTask implements Runnable {
         msg.setData(msgBundle);
 
         messageHandler.sendMessage(msg);
-    }
-
-    // TODO: Remove getFakeData()
-    protected FakeData getFakeData() {
-        return new FakeData();
     }
 
     protected abstract void runTask() throws IOException, TweeterRemoteException;

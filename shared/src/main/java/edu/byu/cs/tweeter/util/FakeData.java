@@ -21,24 +21,30 @@ public class FakeData {
     /**
      * Test user profile images.
      */
-    private static final String MALE_IMAGE_URL = "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/donald_duck.png";
-    private static final String FEMALE_IMAGE_URL = "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/daisy_duck.png";
+//    private static final String MALE_IMAGE_URL = "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/donald_duck.png";
+//    private static final String FEMALE_IMAGE_URL = "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/daisy_duck.png";
+
+    private static final String MALE_IMAGE_URL = "https://ogden9-tweeter.s3.us-west-2.amazonaws.com/donald_duck.png";
+    private static final String FEMALE_IMAGE_URL = "https://ogden9-tweeter.s3.us-west-2.amazonaws.com/daisy_duck.png";
 
     /**
      * Generated users.
      */
     private static final User user1 = new User("Allen", "Anderson", "@allen", MALE_IMAGE_URL);
     private static final User user2 = new User("Amy", "Ames", "@amy", FEMALE_IMAGE_URL);
+
     private static final User user3 = new User("Bob", "Bobson", "@bob", MALE_IMAGE_URL);
     private static final User user4 = new User("Bonnie", "Beatty", "@bonnie", FEMALE_IMAGE_URL);
     private static final User user5 = new User("Chris", "Colston", "@chris", MALE_IMAGE_URL);
     private static final User user6 = new User("Cindy", "Coats", "@cindy", FEMALE_IMAGE_URL);
     private static final User user7 = new User("Dan", "Donaldson", "@dan", MALE_IMAGE_URL);
+
     private static final User user8 = new User("Dee", "Dempsey", "@dee", FEMALE_IMAGE_URL);
     private static final User user9 = new User("Elliott", "Enderson", "@elliott", MALE_IMAGE_URL);
     private static final User user10 = new User("Elizabeth", "Engle", "@elizabeth", FEMALE_IMAGE_URL);
     private static final User user11 = new User("Frank", "Frandson", "@frank", MALE_IMAGE_URL);
     private static final User user12 = new User("Fran", "Franklin", "@fran", FEMALE_IMAGE_URL);
+
     private static final User user13 = new User("Gary", "Gilbert", "@gary", MALE_IMAGE_URL);
     private static final User user14 = new User("Giovanna", "Giles", "@giovanna", FEMALE_IMAGE_URL);
     private static final User user15 = new User("Henry", "Henderson", "@henry", MALE_IMAGE_URL);
