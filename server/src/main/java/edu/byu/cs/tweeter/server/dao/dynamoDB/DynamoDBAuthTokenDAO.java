@@ -40,6 +40,8 @@ public class DynamoDBAuthTokenDAO extends DynamoDBDAO implements AuthTokenDAO {
                         authToken.getDatetime());
 
         getDynamoDB().putItemInTable(getItemType(), item, getTable());
+
+        System.out.println("exit putAuthToken");
     }
 
     @Override

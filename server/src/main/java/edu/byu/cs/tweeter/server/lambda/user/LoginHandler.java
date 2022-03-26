@@ -16,6 +16,13 @@ public class LoginHandler extends AuthenticateServiceHandler implements RequestH
         validateAlias("alias", request.getAlias());
         validateNotNull(" password", request.getPassword());
 
-        return getService().login(request);
+        System.out.println("alias: "+ request.getAlias());
+        System.out.println("password: "+ request.getPassword());
+
+        AuthenticateResponse response = getService().login(request);
+
+        System.out.println("isSuccess: " + response.isSuccess());
+
+        return response;
     }
 }

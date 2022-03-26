@@ -26,6 +26,8 @@ public class ServerFacade {
     public <Q extends Request, R extends Response> R request(Q request, String urlPath, Class<R> clazz) throws IOException, TweeterRemoteException {
         R response = clientCommunicator.doPost(urlPath, request, null, clazz);
 
+        System.out.println("isSuccess: " + response.isSuccess());
+
         if (!response.isSuccess()) {
             throw new RuntimeException(response.getMessage());
         }

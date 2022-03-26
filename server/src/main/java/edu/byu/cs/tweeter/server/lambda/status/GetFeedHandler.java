@@ -14,6 +14,14 @@ public class GetFeedHandler extends StatusServiceHandler implements RequestHandl
         validateNotNull("limit", request.getLimit());
         validatePositive("limit", request.getLimit());
 
-        return getService().getFeed(request);
+        PagedResponse<Status> response = getService().getFeed(request);
+
+        System.out.println("isSuccess: " + response.isSuccess());
+        for (Status item: response.getItems()) {
+            System.out.println(item);
+        }
+        System.out.println("hasMorePages: " + response.getHasMorePages());
+
+        return response;
     }
 }

@@ -31,13 +31,17 @@ public class AuthenticateService extends UserService {
 
         User user = getUserDAO().getUser(request.getAlias(), request.getPassword());
 
+        System.out.println("user != null: " + (user != null));
         if (user != null) {
             response = new AuthenticateResponse(user, makeAuthToken());
+
+            System.out.println("isSuccess: " + response.isSuccess());
 
         } else {
             response = new AuthenticateResponse("Invalid password");
         }
 
+        System.out.println("exit login");
         return response;
     }
 
@@ -67,6 +71,10 @@ public class AuthenticateService extends UserService {
         AuthToken authToken = new AuthToken();
 
         getAuthTokenDAO().putAuthToken(authToken);
+
+        System.out.println("token: " + authToken.getToken());
+        System.out.println("dateTime: " + authToken.getDatetime());
+        System.out.println("exit makeAuthToken");
 
         return authToken;
     }

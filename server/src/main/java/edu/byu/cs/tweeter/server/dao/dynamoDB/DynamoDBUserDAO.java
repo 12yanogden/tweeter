@@ -61,7 +61,8 @@ public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
         item = new Item()
                 .withPrimaryKey(
                         getAliasAttr(),
-                        user.getAlias(),
+                        user.getAlias())
+                .withString(
                         getFirstNameAttr(),
                         user.getFirstName())
                 .withString(
@@ -100,6 +101,7 @@ public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
         String expectedPassword = dbResponse.get(getPasswordAttr()).toString();
         User user = null;
 
+        System.out.println("expectedPassword.equals(hash(password)): " + expectedPassword.equals(hash(password)));
         if (expectedPassword.equals(hash(password))) {
             user = extractUserFromItem(dbResponse);
         }

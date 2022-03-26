@@ -8,9 +8,14 @@ import edu.byu.cs.tweeter.model.net.response.FollowCountResponse;
 
 public class FollowerCountHandler extends FollowServiceHandler implements RequestHandler<FollowCountRequest, FollowCountResponse> {
     @Override
-    public FollowCountResponse handleRequest(FollowCountRequest input, Context context) {
-        validateAlias("target user alias", input.getTargetUserAlias());
+    public FollowCountResponse handleRequest(FollowCountRequest request, Context context) {
+        validateAlias("target user alias", request.getTargetUserAlias());
 
-        return getService().getFollowerCount(input);
+        FollowCountResponse response = getService().getFollowingCount(request);
+
+        System.out.println("isSuccess: " + response.isSuccess());
+        System.out.println("count: " + response.getCount());
+
+        return response;
     }
 }

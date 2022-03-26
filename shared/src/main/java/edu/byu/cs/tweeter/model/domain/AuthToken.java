@@ -2,6 +2,8 @@ package edu.byu.cs.tweeter.model.domain;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.UUID;
@@ -26,9 +28,11 @@ public class AuthToken implements Serializable {
 
     private String calcDateTime() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d yyyy h:mm a");
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime  nowLdt = LocalDateTime.now();
+        ZoneId denverId = ZoneId.of("America/Denver");
+        ZonedDateTime nowZdt = ZonedDateTime.of(nowLdt, denverId);
 
-        return formatter.format(now);
+        return formatter.format(nowZdt);
     }
 
     public AuthToken(String token) {

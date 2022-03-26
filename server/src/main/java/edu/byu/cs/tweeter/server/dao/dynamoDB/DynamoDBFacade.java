@@ -3,6 +3,7 @@ package edu.byu.cs.tweeter.server.dao.dynamoDB;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.document.DeleteItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.PutItemOutcome;
@@ -33,7 +34,14 @@ public class DynamoDBFacade {
 
             outcome = table.putItem(item);
 
-            System.out.println("Insert " + itemType + " succeeded:\n" + outcome.getPutItemResult());
+            if (outcome == null) {
+                System.out.println("Put " + itemType + " failed");
+
+                throw new RuntimeException("[Server Error] Insert " + itemType + " failed");
+
+            } else {
+                System.out.println("Insert " + itemType + " succeeded:\n" + outcome.getPutItemResult());
+            }
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -46,30 +54,50 @@ public class DynamoDBFacade {
     }
 
     public Item getItemFromTable(String itemType, GetItemSpec spec, Table table) {
-        Item outcome;
+        Item outcome = null;
 
         try {
             System.out.println("Get " + itemType);
 
             outcome = table.getItem(spec);
 
-            System.out.println("Get " + itemType + " succeeded: " + outcome);
+            if (outcome == null) {
+                System.out.println("Get " + itemType + " failed");
+
+                throw new RuntimeException("[Bad Request] " + itemType + " not found");
+
+            } else {
+                System.out.println("Get " + itemType + " succeeded: " + outcome);
+            }
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
-
-            throw new RuntimeException("[Bad Request] " + itemType + " not found");
         }
 
         return outcome;
     }
 
     public void deleteItemFromTable(String itemType, DeleteItemSpec spec, Table table) {
-        System.out.println("Delete " + itemType);
+        DeleteItemOutcome outcome;
 
-        table.deleteItem(spec);
+        try {
+            System.out.println("Delete " + itemType);
 
-        System.out.println("Delete " + itemType + " succeeded");
+            outcome = table.deleteItem(spec);
+
+            if (outcome == null) {
+                System.out.println("Delete " + itemType + " failed");
+
+                throw new RuntimeException("[Bad Request] " + itemType + " not deleted");
+
+            } else {
+                System.out.println("Delete " + itemType + " succeeded");
+            }
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

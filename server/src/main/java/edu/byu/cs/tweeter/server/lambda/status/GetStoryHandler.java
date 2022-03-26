@@ -14,6 +14,14 @@ public class GetStoryHandler extends StatusServiceHandler implements RequestHand
         validateNotNull("limit", request.getLimit());
         validatePositive("limit", request.getLimit());
 
-        return getService().getStory(request);
+        PagedResponse<Status> response = getService().getStory(request);
+
+        System.out.println("isSuccess: " + response.isSuccess());
+        for (Status item: response.getItems()) {
+            System.out.println(item);
+        }
+        System.out.println("hasMorePages: " + response.getHasMorePages());
+
+        return response;
     }
 }

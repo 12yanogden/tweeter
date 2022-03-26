@@ -15,6 +15,10 @@ public class RegisterHandler extends AuthenticateServiceHandler implements Reque
         validateNotNull("last name", request.getLastName());
         validateNotNull("image", request.getImage());
 
-        return getService().register(request);
+        AuthenticateResponse response = getService().register(request);
+
+        System.out.println("isSuccess: " + response.isSuccess());
+
+        return response;
     }
 }

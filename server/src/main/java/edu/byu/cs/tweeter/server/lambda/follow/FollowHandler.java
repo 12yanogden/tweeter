@@ -9,6 +9,10 @@ import edu.byu.cs.tweeter.model.net.response.Response;
 public class FollowHandler extends FollowServiceHandler implements RequestHandler<FollowRequest, Response> {
     @Override
     public Response handleRequest(FollowRequest request, Context context) {
-        return getService().follow(request);
+        Response response = getService().follow(request);
+
+        System.out.println("isSuccess: " + response.isSuccess());
+
+        return response;
     }
 }
