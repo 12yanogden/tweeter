@@ -11,7 +11,7 @@ public class FollowerCountHandler extends FollowServiceHandler implements Reques
     public FollowCountResponse handleRequest(FollowCountRequest request, Context context) {
         validateAlias("target user alias", request.getTargetUserAlias());
 
-        FollowCountResponse response = getService().getFollowingCount(request);
+        FollowCountResponse response = getService().getFollowerCount(request);
 
         System.out.println("isSuccess: " + response.isSuccess());
         System.out.println("count: " + response.getCount());

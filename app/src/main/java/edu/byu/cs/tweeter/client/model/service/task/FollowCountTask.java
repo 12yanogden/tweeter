@@ -28,7 +28,6 @@ public class FollowCountTask extends AuthenticatedTask {
         super(authToken, messageHandler, facade, urlPath);
 
         this.targetUser = targetUser;
-        this.count = 20;
     }
 
     @Override
@@ -38,6 +37,8 @@ public class FollowCountTask extends AuthenticatedTask {
         FollowCountResponse response = getServerFacade().request(request, getUrlPath(), FollowCountResponse.class);
 
         if(response.isSuccess()) {
+            count = response.getCount();
+
             sendSuccessMessage();
         } else {
             sendFailedMessage(response.getMessage());

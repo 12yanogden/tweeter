@@ -30,7 +30,7 @@ public class DynamoDBFacade {
         PutItemOutcome outcome;
 
         try {
-            System.out.println("Insert " + itemType + ": " + item.toJSON());
+            System.out.println("Insert " + itemType);
 
             outcome = table.putItem(item);
 

@@ -27,10 +27,10 @@ public class PagedStatusTask extends PagedTask<Status> {
 
     @Override
     protected Pair<String, String> getLastItemId(User targetUser, Status status) {
-        Pair<String, String> lastItemId = null;
+        Pair<String, String> lastItemId = new Pair<>(null, null);
 
         if (status != null) {
-            lastItemId = new Pair<>(status.getUser().getAlias(), status.getDate());
+            lastItemId = new Pair<>(targetUser.getAlias(), status.getDate());
         }
 
         return lastItemId;

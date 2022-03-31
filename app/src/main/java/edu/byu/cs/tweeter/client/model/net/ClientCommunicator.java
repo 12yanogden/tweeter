@@ -41,6 +41,8 @@ class ClientCommunicator {
                 connection.setDoOutput(true);
 
                 String entityBody = JsonSerializer.serialize(requestInfo);
+                System.out.println(entityBody);
+
                 try (DataOutputStream os = new DataOutputStream(connection.getOutputStream())) {
                     os.writeBytes(entityBody);
                     os.flush();
@@ -87,10 +89,20 @@ class ClientCommunicator {
 
             requestStrategy.sendRequest(connection);
 
+            System.out.println("connection.getResponseCode(): " + connection.getResponseCode());
+
             switch (connection.getResponseCode()) {
                 case HttpURLConnection.HTTP_OK:
                     String responseString = getResponse(connection.getInputStream());
+
+                    System.out.println("responseString: " + responseString);
+
+                    T response = JsonSerializer.deserialize(responseString, returnType);
+
+                    System.out.println("response: " + response.toString());
+
                     return JsonSerializer.deserialize(responseString, returnType);
+
                 case HttpURLConnection.HTTP_BAD_REQUEST:
                     ErrorResponse errorResponse = getErrorResponse(connection);
                     throw new TweeterRequestException(errorResponse.errorMessage, errorResponse.errorType, errorResponse.stackTrace);

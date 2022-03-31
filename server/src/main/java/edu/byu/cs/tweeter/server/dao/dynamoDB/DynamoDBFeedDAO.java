@@ -115,10 +115,13 @@ public class DynamoDBFeedDAO extends DynamoDBDAO implements FeedDAO {
 
         QuerySpec querySpec = new QuerySpec().withKeyConditionExpression("#user = :user").withNameMap(nameMap)
                 .withValueMap(valueMap);
-        querySpec.withScanIndexForward(true);
+        querySpec.withScanIndexForward(false);
         querySpec.withMaxResultSize(limit);
 
-        if (lastItemId != null) {
+        System.out.println("ownerAlias: " + lastItemId.getFirst());
+        System.out.println("dateTime: " + lastItemId.getSecond());
+
+        if (lastItemId.getFirst() != null && lastItemId.getSecond() != null) {
             querySpec.withExclusiveStartKey(pairToKey(lastItemId));
         }
 

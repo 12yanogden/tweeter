@@ -11,13 +11,14 @@ import edu.byu.cs.tweeter.model.net.request.FollowRequest;
 import edu.byu.cs.tweeter.model.net.request.PagedRequest;
 import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
 import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
+import edu.byu.cs.tweeter.model.net.response.AuthenticateResponse;
+import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.PagedStatusResponse;
 import edu.byu.cs.tweeter.model.net.response.PagedUserResponse;
 import edu.byu.cs.tweeter.server.dao.dynamoDB.DynamoDBDAOFactory;
 import edu.byu.cs.tweeter.server.service.AuthenticateService;
 import edu.byu.cs.tweeter.server.service.FollowService;
 import edu.byu.cs.tweeter.server.service.StatusService;
-import edu.byu.cs.tweeter.util.Pair;
 
 public class Main {
     private static DynamoDBDAOFactory factory;
@@ -35,15 +36,17 @@ public class Main {
 //            follow(i.toString());
 //        }
 
+//        isFollower();
+
 //        getFollowers();
 
 //        getFollowing();
 
-//        for (Integer i = 0; i < 5; i++) {
-//            postStatus(i.toString());
-//        }
+        for (Integer i = 0; i < 5; i++) {
+            postStatus(i.toString());
+        }
 
-        getFeed();
+//        getFeed();
     }
 
     private static void register(String iteration) {
@@ -63,14 +66,17 @@ public class Main {
         AuthenticateRequest request = new AuthenticateRequest("@alias1", "pass");
         AuthenticateService authenticateService = new AuthenticateService(factory);
 
-        authenticateService.login(request);
+        AuthenticateResponse response = authenticateService.login(request);
+
+        System.out.println("user: " + response.getUser());
+        System.out.println("imageURL: " + response.getUser().getImageUrl());
     }
 
     private static void postStatus(String iteration) {
-        String postIteration = "1";
+        String postIteration = "3";
         String post = "post" + postIteration;
         User user = getTestUser(iteration);
-        String datetime = "Mar 24 2022 10:0" + iteration + " PM";
+        String datetime = "Mar 24 2022 " + postIteration + ":0" + iteration + " PM";
         List<String> urls = new ArrayList<>();
         List<String> mentions = new ArrayList<>();
         Status status = new Status(post, user, datetime, urls, mentions);
@@ -82,14 +88,14 @@ public class Main {
     }
 
     private static AuthToken getAuthToken() {
-        return new AuthToken("fdb88008-7736-4f51-8fe4-8f5327bee60a", "Mar 26 2022 8:23 PM");
+        return new AuthToken("fb812c8f-1959-43b4-86e1-88ba578c955d", "Mar 28 2022 6:29 PM");
     }
 
     private static User getTestUser(String iterator) {
         return new User("first" + iterator,
                 "last" + iterator,
                 "@alias" + iterator,
-                "https://ogden9-tweeter.s3.us-west-2.amazonaws.com/%40alias1.png");
+                "https://s3.us-west-2.amazonaws.com/ogden9-tweeter/alias" + iterator + ".png");
     }
 
     private static User getAllen() {
@@ -100,8 +106,8 @@ public class Main {
     }
 
     private static void follow(String iterator) {
-        User followee = getAllen();
-        User follower = getTestUser(iterator);
+        User follower = getAllen();
+        User followee = getTestUser(iterator);
 
         FollowRequest request = new FollowRequest(getAuthToken(), followee, follower);
         FollowService service = new FollowService(factory);
@@ -121,9 +127,10 @@ public class Main {
 
     private static void getStory() {
         User user = getTestUser("1");
-        Pair<String, String> lastItemId = new Pair<>("@alias1", "Mar 24 2022 10:07 PM");
+        String alias = "@alias1";
+        String dateTime = "Mar 24 2022 10:07 PM";
 
-        PagedRequest request = new PagedRequest(getAuthToken(), user.getAlias(), 2, lastItemId);
+        PagedRequest request = new PagedRequest(getAuthToken(), user.getAlias(), 2, alias, dateTime);
         StatusService service = new StatusService(factory);
         PagedStatusResponse response = service.getStory(request);
 
@@ -134,11 +141,23 @@ public class Main {
         System.out.println("hasMorePages: " + response.getHasMorePages());
     }
 
+    private static void isFollower() {
+        User followee = getTestUser("0");
+        User follower = getAllen();
+
+        FollowRequest request = new FollowRequest(getAuthToken(), followee, follower);
+        FollowService service = new FollowService(factory);
+        IsFollowerResponse response = service.isFollower(request);
+
+        System.out.println("isFollower: " + response.getIsFollower());
+    }
+
     private static void getFollowers() {
         User user = getTestUser("1");
-        Pair<String, String> lastItemId = new Pair<>("@alias1", "@alias3");
+        String followee = "@alias1";
+        String follower = "@alias3";
 
-        PagedRequest request = new PagedRequest(getAuthToken(), user.getAlias(), 2, null);
+        PagedRequest request = new PagedRequest(getAuthToken(), user.getAlias(), 2, followee, follower);
         FollowService service = new FollowService(factory);
         PagedUserResponse response = service.getFollowers(request);
 
@@ -151,9 +170,10 @@ public class Main {
 
     private static void getFollowing() {
         User user = getAllen();
-        Pair<String, String> lastItemId = new Pair<>("@alias4", "@allen");
+        String followee = "@alias1";
+        String follower = "@alias3";
 
-        PagedRequest request = new PagedRequest(getAuthToken(), user.getAlias(), 2, null);
+        PagedRequest request = new PagedRequest(getAuthToken(), user.getAlias(), 2, followee, follower);
         FollowService service = new FollowService(factory);
         PagedUserResponse response = service.getFollowing(request);
 
@@ -165,10 +185,11 @@ public class Main {
     }
 
     private static void getFeed() {
-        User user = getTestUser("1");
-        Pair<String, String> lastItemId = new Pair<>("@allen", "Mar 24 2022 10:07 PM");
+        User user = getAllen();
+        String alias = "@allen";
+        String dateTime = "Mar 24 2022 2:04 PM";
 
-        PagedRequest request = new PagedRequest(getAuthToken(), user.getAlias(), 5, null);
+        PagedRequest request = new PagedRequest(getAuthToken(), user.getAlias(), 5, alias, dateTime);
         StatusService service = new StatusService(factory);
         PagedStatusResponse response = service.getFeed(request);
 

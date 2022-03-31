@@ -106,10 +106,10 @@ public class DynamoDBStoryDAO extends DynamoDBDAO implements StoryDAO {
 
         QuerySpec querySpec = new QuerySpec().withKeyConditionExpression("#user = :user").withNameMap(nameMap)
                 .withValueMap(valueMap);
-        querySpec.withScanIndexForward(true);
+        querySpec.withScanIndexForward(false);
         querySpec.withMaxResultSize(limit);
 
-        if (lastItemId != null) {
+        if (lastItemId.getFirst() != null && lastItemId.getSecond() != null) {
             querySpec.withExclusiveStartKey(pairToKey(lastItemId));
         }
 

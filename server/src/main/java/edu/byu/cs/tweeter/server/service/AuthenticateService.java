@@ -6,7 +6,6 @@ import edu.byu.cs.tweeter.model.net.request.AuthenticateRequest;
 import edu.byu.cs.tweeter.model.net.request.AuthenticatedRequest;
 import edu.byu.cs.tweeter.model.net.request.GetUserRequest;
 import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
-import edu.byu.cs.tweeter.model.net.request.Request;
 import edu.byu.cs.tweeter.model.net.response.AuthenticateResponse;
 import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;

@@ -13,18 +13,18 @@ import edu.byu.cs.tweeter.model.net.request.FollowRequest;
 import edu.byu.cs.tweeter.model.net.response.Response;
 
 public class FollowUnfollowTask extends AuthenticatedTask {
-    private User follower;
     private User followee;
+    private User follower;
 
-    public FollowUnfollowTask(AuthToken authToken, User follower, User followee, Handler messageHandler, ServerFacade facade, String urlPath) {
+    public FollowUnfollowTask(AuthToken authToken, User followee, User follower, Handler messageHandler, ServerFacade facade, String urlPath) {
         super(authToken, messageHandler, facade, urlPath);
 
-        this.follower = follower;
         this.followee = followee;
+        this.follower = follower;
     }
 
     protected void runTask() throws IOException, TweeterRemoteException {
-        FollowRequest request = new FollowRequest(getAuthToken(), getFollower(), getFollowee());
+        FollowRequest request = new FollowRequest(getAuthToken(), getFollowee(), getFollower());
 
         Response response = getServerFacade().request(request, getUrlPath(), Response.class);
 

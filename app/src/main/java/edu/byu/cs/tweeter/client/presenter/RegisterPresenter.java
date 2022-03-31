@@ -39,7 +39,7 @@ public class RegisterPresenter extends AuthenticatePresenter {
 
     private String imageToURL(Bitmap image) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        image.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+        image.compress(Bitmap.CompressFormat.PNG, 100, bos);
         byte[] imageBytes = bos.toByteArray();
 
         // Intentionally, Use the java Base64 encoder so it is compatible with M4.

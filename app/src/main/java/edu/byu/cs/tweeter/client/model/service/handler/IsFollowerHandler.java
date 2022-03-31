@@ -14,6 +14,8 @@ public class IsFollowerHandler extends BackgroundTaskHandler<IsFollowerObserverI
     protected void handleSuccess(Bundle data, IsFollowerObserverInterface observer) {
         boolean isFollower = data.getBoolean(IsFollowerTask.IS_FOLLOWER_KEY);
 
+        System.out.println("isFollowerHandler, isFollower: " + isFollower);
+
         observer.handleSuccess(isFollower);
     }
 }

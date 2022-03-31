@@ -14,7 +14,7 @@ public class GetFollowingTask extends PagedUserTask {
 
     @Override
     protected Pair<String, String> getLastItemId(User follower, User followee) {
-        Pair<String, String> lastItemId = null;
+        Pair<String, String> lastItemId = new Pair<>(null, null);;
 
         if (followee != null && follower != null) {
             lastItemId = new Pair<>(followee.getAlias(), follower.getAlias());

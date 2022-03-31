@@ -167,6 +167,8 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
 
     @Override
     public void updateFollowButton(boolean isFollower) {
+        System.out.println("MainActivity, isFollower: " + isFollower);
+
         // If logged in user if a follower of the selected user, display the follow button as "following"
         if (isFollower) {
             followButton.setText(R.string.following);
@@ -192,11 +194,11 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
 
     @Override
     public void setFollowersCount(int count) {
-        followerCount.setText(count);
+        followerCount.setText(getString(R.string.followerCount, String.valueOf(count)));
     }
 
     @Override
     public void setFollowingCount(int count) {
-        followeeCount.setText(count);
+        followeeCount.setText(getString(R.string.followeeCount, String.valueOf(count)));
     }
 }

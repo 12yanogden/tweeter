@@ -4,7 +4,6 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 
 import edu.byu.cs.tweeter.model.net.request.FollowRequest;
-import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 
 public class IsFollowerHandler extends FollowServiceHandler implements RequestHandler<FollowRequest, IsFollowerResponse> {
@@ -13,7 +12,7 @@ public class IsFollowerHandler extends FollowServiceHandler implements RequestHa
         IsFollowerResponse response = getService().isFollower(request);
 
         System.out.println("isSuccess: " + response.isSuccess());
-        System.out.println("isFollower: " + response.isFollower());
+        System.out.println("isFollower: " + response.getIsFollower());
 
         return response;
     }

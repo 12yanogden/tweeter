@@ -69,7 +69,8 @@ public class FollowService extends UserService {
         PagedUserResponse response;
 
         if (validateAuthToken(request.getAuthToken())) {
-            Pair<List<User>, Boolean> queryResponse = getFollowDAO().queryFollowing(request.getTargetUserAlias(), request.getLimit(), request.getLastItemId());
+            Pair<String, String> lastItemId = new Pair<>(request.getAlias(), request.getDateTime());
+            Pair<List<User>, Boolean> queryResponse = getFollowDAO().queryFollowing(request.getTargetUserAlias(), request.getLimit(), lastItemId);
 
             response = new PagedUserResponse(queryResponse.getFirst(), queryResponse.getSecond());
         } else {
@@ -83,7 +84,8 @@ public class FollowService extends UserService {
         PagedUserResponse response;
 
         if (validateAuthToken(request.getAuthToken())) {
-            Pair<List<User>, Boolean> queryResponse = getFollowDAO().queryFollowers(request.getTargetUserAlias(), request.getLimit(), request.getLastItemId());
+            Pair<String, String> lastItemId = new Pair<>(request.getAlias(), request.getDateTime());
+            Pair<List<User>, Boolean> queryResponse = getFollowDAO().queryFollowers(request.getTargetUserAlias(), request.getLimit(), lastItemId);
 
             response = new PagedUserResponse(queryResponse.getFirst(), queryResponse.getSecond());
         } else {

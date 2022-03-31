@@ -32,7 +32,8 @@ public class StatusService extends AuthTokenService {
         PagedStatusResponse response;
 
         if (validateAuthToken(request.getAuthToken())) {
-            Pair<List<Status>, Boolean> queryResponse = getStoryDAO().queryStory(request.getTargetUserAlias(), request.getLimit(), request.getLastItemId());
+            Pair<String, String> lastItemId = new Pair<>(request.getAlias(), request.getDateTime());
+            Pair<List<Status>, Boolean> queryResponse = getStoryDAO().queryStory(request.getTargetUserAlias(), request.getLimit(), lastItemId);
 
             response = new PagedStatusResponse(queryResponse.getFirst(), queryResponse.getSecond());
 
@@ -47,7 +48,8 @@ public class StatusService extends AuthTokenService {
         PagedStatusResponse response;
 
         if (validateAuthToken(request.getAuthToken())) {
-            Pair<List<Status>, Boolean> queryResponse = getFeedDAO().queryFeed(request.getTargetUserAlias(), request.getLimit(), request.getLastItemId());
+            Pair<String, String> lastItemId = new Pair<>(request.getAlias(), request.getDateTime());
+            Pair<List<Status>, Boolean> queryResponse = getFeedDAO().queryFeed(request.getTargetUserAlias(), request.getLimit(), lastItemId);
 
             response = new PagedStatusResponse(queryResponse.getFirst(), queryResponse.getSecond());
 

@@ -48,15 +48,13 @@ public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
 
     @Override
     public String putUser(User user, String password, String image) {
-        String imageURL;
+        String keyName = user.getAlias().substring(1) + ".png";
+        String imageURL = makeImageURL(keyName);
         Item item;
 
         // TODO: Validate user alias is unique
 
-        imageURL = getS3().putStreamInBucket(getS3BucketName(),
-                                    user.getAlias() + ".png",
-                                                toStream(image),
-                                                makeMetadata("image/png"));
+        getS3().putImageInBucket(getS3BucketName(), keyName, image);
 
         item = new Item()
                 .withPrimaryKey(
@@ -84,6 +82,10 @@ public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
         getDynamoDB().putItemInTable(getItemType(), item, getTable());
 
         return imageURL;
+    }
+
+    private String makeImageURL(String keyName) {
+        return "https://s3.us-west-2.amazonaws.com/" + getS3BucketName() + "/" + keyName;
     }
 
     @Override
@@ -176,20 +178,6 @@ public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
                 item.get(getLastNameAttr()).toString(),
                 item.get(getAliasAttr()).toString(),
                 item.get(getImageURLAttr()).toString());
-    }
-
-    private ByteArrayInputStream toStream(String image) {
-        byte[] imageBytes = Base64.getDecoder().decode(image);
-
-        return new ByteArrayInputStream(imageBytes);
-    }
-
-    private ObjectMetadata makeMetadata(String contentType) {
-        ObjectMetadata metadata = new ObjectMetadata();
-
-        metadata.setContentType(contentType);
-
-        return metadata;
     }
 
     private String hash(String password) {

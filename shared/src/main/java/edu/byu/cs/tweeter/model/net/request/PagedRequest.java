@@ -6,7 +6,8 @@ import edu.byu.cs.tweeter.util.Pair;
 public class PagedRequest extends AuthenticatedRequest {
     private String targetUserAlias;
     private int limit;
-    private Pair<String, String> lastItemId;
+    private String alias;
+    private String dateTime;
 
     /**
      * Allows construction of the object from Json. Private so it won't be called in normal code.
@@ -15,12 +16,13 @@ public class PagedRequest extends AuthenticatedRequest {
         super();
     }
 
-    public PagedRequest(AuthToken authToken, String userAlias, int limit, Pair<String, String> lastItemId) {
+    public PagedRequest(AuthToken authToken, String userAlias, int limit, String alias, String dateTime) {
         super(authToken);
 
         this.targetUserAlias = userAlias;
         this.limit = limit;
-        this.lastItemId = lastItemId;
+        this.alias = alias;
+        this.dateTime = dateTime;
     }
 
     public String getTargetUserAlias() {
@@ -39,11 +41,19 @@ public class PagedRequest extends AuthenticatedRequest {
         this.limit = limit;
     }
 
-    public Pair<String, String> getLastItemId() {
-        return lastItemId;
+    public String getAlias() {
+        return alias;
     }
 
-    public void setLastItemId(Pair<String, String> lastItemId) {
-        this.lastItemId = lastItemId;
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+
+    public String getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(String dateTime) {
+        this.dateTime = dateTime;
     }
 }

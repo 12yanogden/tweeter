@@ -63,7 +63,7 @@ public abstract class PagedTask<T> extends AuthenticatedTask {
         String targetUserAlias = getTargetUser() == null ? null : getTargetUser().getAlias();
         Pair<String, String> lastItemId = getLastItemId(getTargetUser(), getLastItem());
 
-        PagedRequest request = new PagedRequest(getAuthToken(), targetUserAlias, getLimit(), lastItemId);
+        PagedRequest request = new PagedRequest(getAuthToken(), targetUserAlias, getLimit(), lastItemId.getFirst(), lastItemId.getSecond());
         PagedResponse<T> response = request(request, getUrlPath());
 
         if(response.isSuccess()) {

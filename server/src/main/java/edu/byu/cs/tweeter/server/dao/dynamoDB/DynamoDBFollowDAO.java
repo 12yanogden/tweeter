@@ -90,7 +90,7 @@ public class DynamoDBFollowDAO extends DynamoDBDAO implements FollowDAO {
 
         QuerySpec querySpec = new QuerySpec().withKeyConditionExpression("#followee = :followee").withNameMap(nameMap)
                 .withValueMap(valueMap);
-        querySpec.withScanIndexForward(true);
+        querySpec.withScanIndexForward(false);
 
         List<User> followers = new ArrayList<>();
 
@@ -203,7 +203,7 @@ public class DynamoDBFollowDAO extends DynamoDBDAO implements FollowDAO {
         querySpec.withScanIndexForward(true);
         querySpec.withMaxResultSize(limit);
 
-        if (lastItemId != null) {
+        if (lastItemId.getFirst() != null && lastItemId.getSecond() != null) {
             querySpec.withExclusiveStartKey(pairToKey(lastItemId));
         }
 
@@ -222,7 +222,7 @@ public class DynamoDBFollowDAO extends DynamoDBDAO implements FollowDAO {
         querySpec.withScanIndexForward(true);
         querySpec.withMaxResultSize(limit);
 
-        if (lastItemId != null) {
+        if (lastItemId.getFirst() != null && lastItemId.getSecond() != null) {
             querySpec.withExclusiveStartKey(pairToKey(lastItemId));
         }
 

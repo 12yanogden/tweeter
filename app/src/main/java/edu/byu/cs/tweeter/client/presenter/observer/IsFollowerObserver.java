@@ -10,6 +10,8 @@ public class IsFollowerObserver extends MainObserver implements IsFollowerObserv
 
     @Override
     public void handleSuccess(boolean isFollower) {
+        System.out.println("isFollowerObserver, isFollower: " + isFollower);
+
         presenter.getView().updateFollowButton(isFollower);
     }
 }

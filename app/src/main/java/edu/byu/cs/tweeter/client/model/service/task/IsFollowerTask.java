@@ -4,15 +4,12 @@ import android.os.Bundle;
 import android.os.Handler;
 
 import java.io.IOException;
-import java.util.Random;
 
 import edu.byu.cs.tweeter.client.model.net.ServerFacade;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
-import edu.byu.cs.tweeter.model.net.request.FollowCountRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowRequest;
-import edu.byu.cs.tweeter.model.net.response.FollowCountResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 
 /**
@@ -33,11 +30,11 @@ public class IsFollowerTask extends AuthenticatedTask {
 
     private boolean isFollower;
 
-    public IsFollowerTask(AuthToken authToken, User follower, User followee, Handler messageHandler, ServerFacade facade, String urlPath) {
+    public IsFollowerTask(AuthToken authToken, User followee, User follower, Handler messageHandler, ServerFacade facade, String urlPath) {
         super(authToken, messageHandler, facade, urlPath);
 
-        this.follower = follower;
-        this.followee = followee;
+        this.follower = followee;
+        this.followee = follower;
     }
 
 
@@ -47,9 +44,15 @@ public class IsFollowerTask extends AuthenticatedTask {
 
         IsFollowerResponse response = getServerFacade().request(request, getUrlPath(), IsFollowerResponse.class);
 
+        System.out.println("isFollowerResponse.isFollower: " + response.getIsFollower());
+
         if(response.isSuccess()) {
-            setIsFollower(response.isFollower());
+            setIsFollower(response.getIsFollower());
+
+            System.out.println("IsFollowerTask, isFollower: " + isFollower());
+
             sendSuccessMessage();
+
         } else {
             sendFailedMessage(response.getMessage());
         }
