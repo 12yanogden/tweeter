@@ -11,7 +11,7 @@ import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.PagedRequest;
 import edu.byu.cs.tweeter.model.net.response.PagedResponse;
-import edu.byu.cs.tweeter.server.dao.dynamoDB.DynamoDBFollowDAO;
+import edu.byu.cs.tweeter.server.dao.aws.dynamoDB.DynamoDBFollowDAO;
 
 public class FollowServiceTest {
 
@@ -46,12 +46,12 @@ public class FollowServiceTest {
     }
 
     /**
-     * Verify that the {@link FollowService#getFollowing(PagedRequest)}
+     * Verify that the {@link FollowService#getPagedFollowing(PagedRequest)}
      * method returns the same result as the {@link DynamoDBFollowDAO} class.
      */
     @Test
     public void testGetFollowees_validRequest_correctResponse() {
-        PagedResponse<User> response = followServiceSpy.getFollowing(request);
+        PagedResponse<User> response = followServiceSpy.getPagedFollowing(request);
         Assert.assertEquals(expectedResponse, response);
     }
 }

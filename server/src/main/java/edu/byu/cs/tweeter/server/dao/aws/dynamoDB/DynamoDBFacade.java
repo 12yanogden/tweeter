@@ -1,15 +1,20 @@
-package edu.byu.cs.tweeter.server.dao.dynamoDB;
+package edu.byu.cs.tweeter.server.dao.aws.dynamoDB;
 
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.document.BatchWriteItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.DeleteItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.PutItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.TableWriteItems;
 import com.amazonaws.services.dynamodbv2.document.spec.DeleteItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
+import com.amazonaws.services.dynamodbv2.model.WriteRequest;
+
+import java.util.List;
+import java.util.Map;
 
 public class DynamoDBFacade {
     private final DynamoDB dynamoDB;
@@ -93,6 +98,33 @@ public class DynamoDBFacade {
 
             } else {
                 System.out.println("Delete " + itemType + " succeeded");
+            }
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public void writeBatch(String itemType, TableWriteItems items) {
+        try {
+            System.out.println("Write batch of type " + itemType);
+            // The 'dynamoDB' object is of type DynamoDB and is declared statically in this example
+            BatchWriteItemOutcome outcome = dynamoDB.batchWriteItem(items);
+
+            System.out.println("Write batch succeeded");
+
+            // Check the outcome for items that didn't make it onto the table
+            // If any were not added to the table, try again to write the batch
+            while (outcome.getUnprocessedItems().size() > 0) {
+                Map<String, List<WriteRequest>> unprocessedItems = outcome.getUnprocessedItems();
+
+                System.out.println("Found " + outcome.getUnprocessedItems().size() + " unprocessed items of type " + itemType);
+                System.out.println("Write batch of unprocessed items of type " + itemType);
+
+                outcome = dynamoDB.batchWriteItemUnprocessed(unprocessedItems);
+
+                System.out.println("Write batch succeeded");
             }
 
         } catch (Exception e) {

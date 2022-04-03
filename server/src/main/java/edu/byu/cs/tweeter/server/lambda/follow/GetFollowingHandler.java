@@ -23,7 +23,7 @@ public class GetFollowingHandler extends FollowServiceHandler implements Request
         validateNotNull("limit", request.getLimit());
         validatePositive("limit", request.getLimit());
 
-        PagedResponse<User> response = getService().getFollowing(request);
+        PagedResponse<User> response = getService().getPagedFollowing(request);
 
         System.out.println("isSuccess: " + response.isSuccess());
         for (User item: response.getItems()) {

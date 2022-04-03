@@ -11,5 +11,5 @@ public interface FollowDAO extends PagedDAO<User> {
     Pair<List<User>, Boolean> queryFollowing(String follower, int limit, Pair<String, String> lastItemId);
     Pair<List<User>, Boolean> queryFollowers(String targetUserAlias, int limit, Pair<String, String> lastItemId);
     void deleteItem(String followeeAlias, String followerAlias);
-    List<User> getFollowers(String followeeAlias);
+    List<String> getFollowerAliases(String followeeAlias);
 }

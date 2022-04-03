@@ -9,18 +9,28 @@ import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
 import edu.byu.cs.tweeter.model.net.response.AuthenticateResponse;
 import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
+import edu.byu.cs.tweeter.server.dao.BucketDAO;
 import edu.byu.cs.tweeter.server.dao.DAOFactory;
 
 public class AuthenticateService extends UserService {
+    private final BucketDAO bucketDAO;
+
     public AuthenticateService(DAOFactory factory) {
         super(factory);
+
+        bucketDAO = factory.makeBucketDAO();
     }
 
     public AuthenticateResponse register(RegisterRequest request) {
         User user = extractUserFromRequest(request);
-        String imageURL = getUserDAO().putUser(user, request.getPassword(), request.getImage());
+        String imageName = user.getAlias().substring(1) + ".png";
+        String imageURL = getBucketDAO().getBucketURL() + "/" + imageName;
 
         user.setImageUrl(imageURL);
+
+        getBucketDAO().putImage(imageName, request.getImage());
+
+        getUserDAO().putUser(user, request.getPassword());
 
         return new AuthenticateResponse(user, makeAuthToken());
     }
@@ -76,5 +86,9 @@ public class AuthenticateService extends UserService {
         System.out.println("exit makeAuthToken");
 
         return authToken;
+    }
+
+    public BucketDAO getBucketDAO() {
+        return bucketDAO;
     }
 }

@@ -3,7 +3,6 @@ package edu.byu.cs.tweeter.server.lambda.follow;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 
-import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.PagedRequest;
 import edu.byu.cs.tweeter.model.net.response.PagedResponse;
@@ -24,7 +23,7 @@ public class GetFollowersHandler extends FollowServiceHandler implements Request
         validateNotNull("limit", request.getLimit());
         validatePositive("limit", request.getLimit());
 
-        PagedResponse<User> response = getService().getFollowers(request);
+        PagedResponse<User> response = getService().getPagedFollowers(request);
 
         System.out.println("isSuccess: " + response.isSuccess());
         for (User item: response.getItems()) {

@@ -1,4 +1,4 @@
-package edu.byu.cs.tweeter.server.dao.dynamoDB;
+package edu.byu.cs.tweeter.server.dao.aws.dynamoDB;
 
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
@@ -9,12 +9,12 @@ import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.server.dao.AuthTokenDAO;
 
 public class DynamoDBAuthTokenDAO extends DynamoDBDAO implements AuthTokenDAO {
-    private String itemType;
-    private String tokenAttr;
-    private String dateTimeAttr;
+    private final String itemType;
+    private final String tokenAttr;
+    private final String dateTimeAttr;
 
-    public DynamoDBAuthTokenDAO() {
-        super("authToken");
+    public DynamoDBAuthTokenDAO(String region) {
+        super("authToken", region);
 
         this.itemType = "AuthToken";
         this.tokenAttr = "token";

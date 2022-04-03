@@ -1,23 +1,30 @@
 package edu.byu.cs.tweeter.server.service;
 
+import com.google.gson.Gson;
+
 import java.util.List;
 
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.PagedRequest;
+import edu.byu.cs.tweeter.model.net.request.PostStatusQueue2Request;
 import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
 import edu.byu.cs.tweeter.model.net.response.PagedStatusResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.server.dao.DAOFactory;
 import edu.byu.cs.tweeter.server.dao.FeedDAO;
 import edu.byu.cs.tweeter.server.dao.FollowDAO;
+import edu.byu.cs.tweeter.server.dao.QueueDAO;
 import edu.byu.cs.tweeter.server.dao.StoryDAO;
+import edu.byu.cs.tweeter.server.dao.aws.sqs.PostStatusQueue1DAO;
+import edu.byu.cs.tweeter.server.dao.aws.sqs.PostStatusQueue2DAO;
 import edu.byu.cs.tweeter.util.Pair;
 
 public class StatusService extends AuthTokenService {
-    private FeedDAO feedDAO;
-    private FollowDAO followDAO;
-    private StoryDAO storyDAO;
+    private final FeedDAO feedDAO;
+    private final FollowDAO followDAO;
+    private final StoryDAO storyDAO;
+    private PostStatusQueuesService postStatusQueuesService;
 
     public StatusService(DAOFactory factory) {
         super(factory);
@@ -25,7 +32,6 @@ public class StatusService extends AuthTokenService {
         feedDAO = factory.makeFeedDAO();
         followDAO = factory.makeFollowDAO();
         storyDAO = factory.makeStoryDAO();
-
     }
 
     public PagedStatusResponse getStory(PagedRequest request) {
@@ -64,13 +70,11 @@ public class StatusService extends AuthTokenService {
         Response response;
 
         if (validateAuthToken(request.getAuthToken())) {
+            String requestJson = new Gson().toJson(request);
+
             getStoryDAO().putItem(request.getStatus());
 
-            List<User> followers = getFollowDAO().getFollowers(request.getStatus().getUser().getAlias());
-
-            for (User follower: followers) {
-                getFeedDAO().putItem(follower.getAlias(), request.getStatus());
-            }
+            getPostStatusQueuesService().getPostStatusQueue1DAO().sendToQueue(requestJson);
 
             response = new Response(true);
 
@@ -79,6 +83,10 @@ public class StatusService extends AuthTokenService {
         }
 
         return response;
+    }
+
+    public void postStatusToFeeds(PostStatusQueue2Request request) {
+        getFeedDAO().putItemInFeeds(request.getFollowers(), request.getStatus());
     }
 
     public FeedDAO getFeedDAO() {
@@ -91,5 +99,13 @@ public class StatusService extends AuthTokenService {
 
     public StoryDAO getStoryDAO() {
         return storyDAO;
+    }
+
+    public PostStatusQueuesService getPostStatusQueuesService() {
+        if (postStatusQueuesService == null) {
+            postStatusQueuesService = new PostStatusQueuesService(getFactory());
+        }
+
+        return postStatusQueuesService;
     }
 }

@@ -1,38 +1,33 @@
-package edu.byu.cs.tweeter.server.dao.dynamoDB;
+package edu.byu.cs.tweeter.server.dao.aws.dynamoDB;
 
 import com.amazonaws.services.dynamodbv2.document.Item;
-import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.UpdateItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.amazonaws.services.dynamodbv2.model.ReturnValue;
-import com.amazonaws.services.s3.model.ObjectMetadata;
 
-import java.io.ByteArrayInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 
-import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.server.dao.UserDAO;
-import edu.byu.cs.tweeter.util.Pair;
+import edu.byu.cs.tweeter.server.dao.aws.s3.S3Facade;
 
 public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
-    private S3Facade s3;
-    private String s3BucketName;
-    private String itemType;
-    private String aliasAttr;
-    private String firstNameAttr;
-    private String lastNameAttr;
-    private String passwordAttr;
-    private String imageURLAttr;
-    private String followingCountAttr;
-    private String followerCountAttr;
+    private final S3Facade s3;
+    private final String s3BucketName;
+    private final String itemType;
+    private final String aliasAttr;
+    private final String firstNameAttr;
+    private final String lastNameAttr;
+    private final String passwordAttr;
+    private final String imageURLAttr;
+    private final String followingCountAttr;
+    private final String followerCountAttr;
 
-    public DynamoDBUserDAO() {
-        super("user");
+    public DynamoDBUserDAO(String region) {
+        super("user", region);
 
         s3 = new S3Facade(getRegion());
         s3BucketName = "ogden9-tweeter";
@@ -47,14 +42,10 @@ public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
     }
 
     @Override
-    public String putUser(User user, String password, String image) {
-        String keyName = user.getAlias().substring(1) + ".png";
-        String imageURL = makeImageURL(keyName);
+    public void putUser(User user, String password) {
         Item item;
 
         // TODO: Validate user alias is unique
-
-        getS3().putImageInBucket(getS3BucketName(), keyName, image);
 
         item = new Item()
                 .withPrimaryKey(
@@ -71,7 +62,7 @@ public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
                         hash(password))
                 .withString(
                         getImageURLAttr(),
-                        imageURL)
+                        user.getImageUrl())
                 .withInt(
                         getFollowingCountAttr(),
                         0)
@@ -80,12 +71,6 @@ public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
                         0);
 
         getDynamoDB().putItemInTable(getItemType(), item, getTable());
-
-        return imageURL;
-    }
-
-    private String makeImageURL(String keyName) {
-        return "https://s3.us-west-2.amazonaws.com/" + getS3BucketName() + "/" + keyName;
     }
 
     @Override
@@ -208,14 +193,6 @@ public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
         }
 
         return out;
-    }
-
-    public S3Facade getS3() {
-        return s3;
-    }
-
-    public String getS3BucketName() {
-        return s3BucketName;
     }
 
     public String getItemType() {

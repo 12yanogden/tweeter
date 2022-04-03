@@ -1,11 +1,15 @@
 package edu.byu.cs.tweeter.server.service;
 
+import com.google.gson.Gson;
+
 import java.util.List;
 
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.FollowCountRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowRequest;
 import edu.byu.cs.tweeter.model.net.request.PagedRequest;
+import edu.byu.cs.tweeter.model.net.request.PostStatusQueue2Request;
+import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
 import edu.byu.cs.tweeter.model.net.response.FollowCountResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.PagedUserResponse;
@@ -19,8 +23,9 @@ import edu.byu.cs.tweeter.util.Pair;
  * Contains the business logic for getting the users a user is following.
  */
 public class FollowService extends UserService {
-    private FollowDAO followDAO;
-    private UserDAO userDAO;
+    private final FollowDAO followDAO;
+    private final UserDAO userDAO;
+    private PostStatusQueuesService postStatusQueuesService;
 
     public FollowService(DAOFactory factory) {
         super(factory);
@@ -65,7 +70,7 @@ public class FollowService extends UserService {
         return response;
     }
 
-    public PagedUserResponse getFollowing(PagedRequest request) {
+    public PagedUserResponse getPagedFollowing(PagedRequest request) {
         PagedUserResponse response;
 
         if (validateAuthToken(request.getAuthToken())) {
@@ -80,7 +85,7 @@ public class FollowService extends UserService {
         return response;
     }
 
-    public PagedUserResponse getFollowers(PagedRequest request) {
+    public PagedUserResponse getPagedFollowers(PagedRequest request) {
         PagedUserResponse response;
 
         if (validateAuthToken(request.getAuthToken())) {
@@ -93,6 +98,14 @@ public class FollowService extends UserService {
         }
 
         return response;
+    }
+
+    public void toPostStatusQueue2(PostStatusRequest request) {
+        List<String> followers = getFollowDAO().getFollowerAliases(request.getStatus().getUser().getAlias());
+        PostStatusQueue2Request queue2Request = new PostStatusQueue2Request(request.getStatus(), followers);
+        String queue2Json = new Gson().toJson(queue2Request);
+
+        getPostStatusQueuesService().getPostStatusQueue2DAO().sendToQueue(queue2Json);
     }
 
     public Response follow(FollowRequest request) {
@@ -133,5 +146,13 @@ public class FollowService extends UserService {
 
     public UserDAO getUserDAO() {
         return userDAO;
+    }
+
+    public PostStatusQueuesService getPostStatusQueuesService() {
+        if (postStatusQueuesService == null) {
+            postStatusQueuesService = new PostStatusQueuesService(getFactory());
+        }
+
+        return postStatusQueuesService;
     }
 }

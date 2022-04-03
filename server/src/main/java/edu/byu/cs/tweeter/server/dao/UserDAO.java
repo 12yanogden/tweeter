@@ -11,5 +11,5 @@ public interface UserDAO {
     void incrementFollowerCount(String alias);
     void decrementFollowingCount(String alias);
     void decrementFollowerCount(String alias);
-    String putUser(User user, String password, String image);
+    void putUser(User user, String password);
 }

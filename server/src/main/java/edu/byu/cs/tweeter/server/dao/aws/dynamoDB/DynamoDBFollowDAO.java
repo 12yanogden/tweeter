@@ -1,4 +1,4 @@
-package edu.byu.cs.tweeter.server.dao.dynamoDB;
+package edu.byu.cs.tweeter.server.dao.aws.dynamoDB;
 
 import com.amazonaws.services.dynamodbv2.document.Index;
 import com.amazonaws.services.dynamodbv2.document.Item;
@@ -22,17 +22,17 @@ import edu.byu.cs.tweeter.util.Pair;
  * A DAO for accessing 'following' data from the database.
  */
 public class DynamoDBFollowDAO extends DynamoDBDAO implements FollowDAO {
-    private String followeeAliasAttr;
-    private String followerAliasAttr;
-    private String followeeFirstNameAttr;
-    private String followeeLastNameAttr;
-    private String followeeImageURLAttr;
-    private String followerFirstNameAttr;
-    private String followerLastNameAttr;
-    private String followerImageURLAttr;
+    private final String followeeAliasAttr;
+    private final String followerAliasAttr;
+    private final String followeeFirstNameAttr;
+    private final String followeeLastNameAttr;
+    private final String followeeImageURLAttr;
+    private final String followerFirstNameAttr;
+    private final String followerLastNameAttr;
+    private final String followerImageURLAttr;
 
-    public DynamoDBFollowDAO() {
-        super("follow");
+    public DynamoDBFollowDAO(String region) {
+        super("follow", region);
 
         this.followeeAliasAttr = "followeeAlias";
         this.followerAliasAttr = "followerAlias";
@@ -77,36 +77,29 @@ public class DynamoDBFollowDAO extends DynamoDBDAO implements FollowDAO {
     }
 
     @Override
-    public List<User> getFollowers(String followeeAlias) {
-        ItemCollection<QueryOutcome> items = null;
-        Iterator<Item> iterator = null;
-        Item item = null;
-
-        HashMap<String, String> nameMap = new HashMap<String, String>();
-        nameMap.put("#followee", getFolloweeAliasAttr());
-
-        HashMap<String, Object> valueMap = new HashMap<String, Object>();
-        valueMap.put(":followee", followeeAlias);
-
-        QuerySpec querySpec = new QuerySpec().withKeyConditionExpression("#followee = :followee").withNameMap(nameMap)
-                .withValueMap(valueMap);
-        querySpec.withScanIndexForward(false);
-
-        List<User> followers = new ArrayList<>();
+    public List<String> getFollowerAliases(String followeeAlias) {
+        HashMap<String, String> nameMap = new HashMap<>() {{ put("#followee", getFolloweeAliasAttr()); }};
+        HashMap<String, Object> valueMap = new HashMap<>() {{ put(":followee", followeeAlias); }};
+        QuerySpec querySpec = new QuerySpec()
+                .withKeyConditionExpression("#followee = :followee")
+                .withNameMap(nameMap)
+                .withValueMap(valueMap)
+                .withScanIndexForward(false);
+        ItemCollection<QueryOutcome> items = getTable().query(querySpec);
+        Iterator<Item> iterator = items.iterator();
+        List<String> followerAliases = new ArrayList<>();
 
         try {
-            items = getTable().query(querySpec);
-
-            iterator = items.iterator();
             while (iterator.hasNext()) {
-                item = iterator.next();
-                followers.add(extractFollowerFromItem(item));
+                Item item = iterator.next();
+
+                followerAliases.add(item.get(getFollowerFirstNameAttr()).toString());
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
 
-        return followers;
+        return followerAliases;
     }
 
     @Override

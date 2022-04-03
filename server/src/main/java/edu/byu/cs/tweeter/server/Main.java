@@ -15,16 +15,16 @@ import edu.byu.cs.tweeter.model.net.response.AuthenticateResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.PagedStatusResponse;
 import edu.byu.cs.tweeter.model.net.response.PagedUserResponse;
-import edu.byu.cs.tweeter.server.dao.dynamoDB.DynamoDBDAOFactory;
+import edu.byu.cs.tweeter.server.dao.aws.AWSDAOFactory;
 import edu.byu.cs.tweeter.server.service.AuthenticateService;
 import edu.byu.cs.tweeter.server.service.FollowService;
 import edu.byu.cs.tweeter.server.service.StatusService;
 
 public class Main {
-    private static DynamoDBDAOFactory factory;
+    private static AWSDAOFactory factory;
 
     public static void main(String[] args) {
-        factory = new DynamoDBDAOFactory();
+        factory = new AWSDAOFactory();
 
 //        for (Integer i = 0; i < 5; i++) {
 //            register(i.toString());
@@ -159,7 +159,7 @@ public class Main {
 
         PagedRequest request = new PagedRequest(getAuthToken(), user.getAlias(), 2, followee, follower);
         FollowService service = new FollowService(factory);
-        PagedUserResponse response = service.getFollowers(request);
+        PagedUserResponse response = service.getPagedFollowers(request);
 
         for (User item: response.getItems()) {
             System.out.println(item);
@@ -175,7 +175,7 @@ public class Main {
 
         PagedRequest request = new PagedRequest(getAuthToken(), user.getAlias(), 2, followee, follower);
         FollowService service = new FollowService(factory);
-        PagedUserResponse response = service.getFollowing(request);
+        PagedUserResponse response = service.getPagedFollowing(request);
 
         for (User item: response.getItems()) {
             System.out.println(item);
