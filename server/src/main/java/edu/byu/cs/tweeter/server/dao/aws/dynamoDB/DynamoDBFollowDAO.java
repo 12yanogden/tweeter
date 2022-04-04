@@ -5,6 +5,7 @@ import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.ItemCollection;
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.QueryOutcome;
+import com.amazonaws.services.dynamodbv2.document.TableWriteItems;
 import com.amazonaws.services.dynamodbv2.document.spec.DeleteItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
@@ -46,7 +47,26 @@ public class DynamoDBFollowDAO extends DynamoDBDAO implements FollowDAO {
 
     @Override
     public void putItem(User followee, User follower) {
-        Item item = new Item()
+        getDynamoDB().putItemInTable("follow relationship", makeItem(followee, follower), getTable());
+    }
+
+    @Override
+    public void putFollowers(User followee, List<User> followers) {
+        int MAX_BATCH_SIZE = 25;
+        TableWriteItems items = makeBatch();
+
+        for (User follower: followers) {
+            items.addItemToPut(makeItem(followee, follower));
+
+            if (items.getItemsToPut() != null && items.getItemsToPut().size() == MAX_BATCH_SIZE) {
+                getDynamoDB().writeBatch("follow relationship", items);
+                items = makeBatch();
+            }
+        }
+    }
+
+    private Item makeItem(User followee, User follower) {
+        return new Item()
                 .withPrimaryKey(
                         getFolloweeAliasAttr(),
                         followee.getAlias(),
@@ -64,8 +84,6 @@ public class DynamoDBFollowDAO extends DynamoDBDAO implements FollowDAO {
                         follower.getLastName())
                 .withString(getFollowerImageURLAttr(),
                         follower.getImageUrl());
-
-        getDynamoDB().putItemInTable("follow relationship", item, getTable());
     }
 
     @Override

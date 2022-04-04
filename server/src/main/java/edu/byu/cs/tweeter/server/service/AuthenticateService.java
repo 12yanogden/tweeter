@@ -1,5 +1,8 @@
 package edu.byu.cs.tweeter.server.service;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.AuthenticateRequest;
@@ -30,7 +33,7 @@ public class AuthenticateService extends UserService {
 
         getBucketDAO().putImage(imageName, request.getImage());
 
-        getUserDAO().putUser(user, request.getPassword());
+        getUserDAO().putUser(user, hash(request.getPassword()));
 
         return new AuthenticateResponse(user, makeAuthToken());
     }
@@ -38,7 +41,7 @@ public class AuthenticateService extends UserService {
     public AuthenticateResponse login(AuthenticateRequest request) {
         AuthenticateResponse response;
 
-        User user = getUserDAO().getUser(request.getAlias(), request.getPassword());
+        User user = getUserDAO().getUser(request.getAlias(), hash(request.getPassword()));
 
         System.out.println("user != null: " + (user != null));
         if (user != null) {
@@ -86,6 +89,36 @@ public class AuthenticateService extends UserService {
         System.out.println("exit makeAuthToken");
 
         return authToken;
+    }
+
+    private String hash(String password) {
+        byte[] bytes;
+        StringBuilder stringBuilder = new StringBuilder();
+        String failedMsg = "FAILED TO HASH";
+        String out = failedMsg;
+
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+
+            md.update(password.getBytes());
+
+            bytes = md.digest();
+
+            for (byte aByte : bytes) {
+                stringBuilder.append(Integer.toString((aByte & 0xff) + 0x100, 16).substring(1));
+            }
+
+            out = stringBuilder.toString();
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+        if (out.equals(failedMsg)) {
+            throw new RuntimeException("[Server Error] Failed to hash: " + password);
+        }
+
+        return out;
     }
 
     public BucketDAO getBucketDAO() {

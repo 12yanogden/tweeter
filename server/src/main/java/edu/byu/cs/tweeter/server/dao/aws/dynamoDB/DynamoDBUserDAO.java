@@ -1,22 +1,20 @@
 package edu.byu.cs.tweeter.server.dao.aws.dynamoDB;
 
 import com.amazonaws.services.dynamodbv2.document.Item;
+import com.amazonaws.services.dynamodbv2.document.TableWriteItems;
 import com.amazonaws.services.dynamodbv2.document.UpdateItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.server.dao.UserDAO;
-import edu.byu.cs.tweeter.server.dao.aws.s3.S3Facade;
+import edu.byu.cs.tweeter.util.Pair;
 
 public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
-    private final S3Facade s3;
-    private final String s3BucketName;
     private final String itemType;
     private final String aliasAttr;
     private final String firstNameAttr;
@@ -29,8 +27,6 @@ public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
     public DynamoDBUserDAO(String region) {
         super("user", region);
 
-        s3 = new S3Facade(getRegion());
-        s3BucketName = "ogden9-tweeter";
         itemType = "user";
         aliasAttr = "alias";
         firstNameAttr = "firstName";
@@ -43,34 +39,50 @@ public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
 
     @Override
     public void putUser(User user, String password) {
-        Item item;
+        getDynamoDB().putItemInTable(getItemType(), makeItem(user, password), getTable());
+    }
 
-        // TODO: Validate user alias is unique
+    @Override
+    public void putUsers(List<Pair<User, String>> users) {
+        int MAX_BATCH_SIZE = 25;
+        TableWriteItems items = makeBatch();
 
-        item = new Item()
+        for (Pair<User, String> pair: users) {
+            User user = pair.getFirst();
+            String password = pair.getSecond();
+
+            items.addItemToPut(makeItem(user, password));
+
+            if (items.getItemsToPut() != null && items.getItemsToPut().size() == MAX_BATCH_SIZE) {
+                getDynamoDB().writeBatch("user", items);
+                items = makeBatch();
+            }
+        }
+    }
+
+    private Item makeItem(User user, String password) {
+        return new Item()
                 .withPrimaryKey(
-                        getAliasAttr(),
-                        user.getAlias())
+                        getAliasAttr(), user.getAlias()
+                )
                 .withString(
-                        getFirstNameAttr(),
-                        user.getFirstName())
+                        getFirstNameAttr(), user.getFirstName()
+                )
                 .withString(
-                        getLastNameAttr(),
-                        user.getLastName())
+                        getLastNameAttr(), user.getLastName()
+                )
                 .withString(
-                        getPasswordAttr(),
-                        hash(password))
+                        getPasswordAttr(), password
+                )
                 .withString(
-                        getImageURLAttr(),
-                        user.getImageUrl())
+                        getImageURLAttr(), user.getImageUrl()
+                )
                 .withInt(
-                        getFollowingCountAttr(),
-                        0)
+                        getFollowingCountAttr(), 0
+                )
                 .withInt(
-                        getFollowerCountAttr(),
-                        0);
-
-        getDynamoDB().putItemInTable(getItemType(), item, getTable());
+                        getFollowerCountAttr(), 0
+                );
     }
 
     @Override
@@ -88,8 +100,8 @@ public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
         String expectedPassword = dbResponse.get(getPasswordAttr()).toString();
         User user = null;
 
-        System.out.println("expectedPassword.equals(hash(password)): " + expectedPassword.equals(hash(password)));
-        if (expectedPassword.equals(hash(password))) {
+        System.out.println("expectedPassword.equals(password): " + expectedPassword.equals(password));
+        if (expectedPassword.equals(password)) {
             user = extractUserFromItem(dbResponse);
         }
 
@@ -163,36 +175,6 @@ public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
                 item.get(getLastNameAttr()).toString(),
                 item.get(getAliasAttr()).toString(),
                 item.get(getImageURLAttr()).toString());
-    }
-
-    private String hash(String password) {
-        byte[] bytes;
-        StringBuilder stringBuilder = new StringBuilder();
-        String failedMsg = "FAILED TO HASH";
-        String out = failedMsg;
-
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-
-            md.update(password.getBytes());
-
-            bytes = md.digest();
-
-            for (byte aByte : bytes) {
-                stringBuilder.append(Integer.toString((aByte & 0xff) + 0x100, 16).substring(1));
-            }
-
-            out = stringBuilder.toString();
-
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-
-        if (out.equals(failedMsg)) {
-            throw new RuntimeException("[Server Error] Failed to hash: " + password);
-        }
-
-        return out;
     }
 
     public String getItemType() {
