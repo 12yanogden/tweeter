@@ -157,6 +157,20 @@ public class DynamoDBUserDAO extends DynamoDBDAO implements UserDAO  {
         setCount(alias, countType, count - 1);
     }
 
+    @Override
+    public void setFollowingCount(String alias, int count) {
+        String countType = "followingCount";
+
+        setCount(alias, countType, count);
+    }
+
+    @Override
+    public void setFollowerCount(String alias, int count) {
+        String countType = "followerCount";
+
+        setCount(alias, countType, count);
+    }
+
     private void setCount(String alias, String countType, int count) {
         UpdateItemSpec updateItemSpec = new UpdateItemSpec().withPrimaryKey("alias", alias)
                 .withUpdateExpression("set " + countType + " = :r")

@@ -111,7 +111,7 @@ public class DynamoDBFollowDAO extends DynamoDBDAO implements FollowDAO {
             while (iterator.hasNext()) {
                 Item item = iterator.next();
 
-                followerAliases.add(item.get(getFollowerFirstNameAttr()).toString());
+                followerAliases.add(item.get(getFollowerAliasAttr()).toString());
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());

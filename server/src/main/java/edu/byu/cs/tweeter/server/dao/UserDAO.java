@@ -10,6 +10,8 @@ public interface UserDAO {
     User getUser(String alias, String password);
     int getFollowerCount(String alias);
     int getFollowingCount(String alias);
+    void setFollowingCount(String alias, int count);
+    void setFollowerCount(String alias, int count);
     void incrementFollowingCount(String alias);
     void incrementFollowerCount(String alias);
     void decrementFollowingCount(String alias);

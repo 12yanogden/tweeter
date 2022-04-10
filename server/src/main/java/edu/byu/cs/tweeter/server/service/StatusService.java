@@ -5,7 +5,6 @@ import com.google.gson.Gson;
 import java.util.List;
 
 import edu.byu.cs.tweeter.model.domain.Status;
-import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.PagedRequest;
 import edu.byu.cs.tweeter.model.net.request.PostStatusQueue2Request;
 import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
@@ -14,10 +13,7 @@ import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.server.dao.DAOFactory;
 import edu.byu.cs.tweeter.server.dao.FeedDAO;
 import edu.byu.cs.tweeter.server.dao.FollowDAO;
-import edu.byu.cs.tweeter.server.dao.QueueDAO;
 import edu.byu.cs.tweeter.server.dao.StoryDAO;
-import edu.byu.cs.tweeter.server.dao.aws.sqs.PostStatusQueue1DAO;
-import edu.byu.cs.tweeter.server.dao.aws.sqs.PostStatusQueue2DAO;
 import edu.byu.cs.tweeter.util.Pair;
 
 public class StatusService extends AuthTokenService {

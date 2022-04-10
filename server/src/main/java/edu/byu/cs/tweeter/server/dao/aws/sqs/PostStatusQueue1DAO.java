@@ -1,9 +1,7 @@
 package edu.byu.cs.tweeter.server.dao.aws.sqs;
 
-public class PostStatusQueue1DAO extends PostStatusQueueDAO {
+public class PostStatusQueue1DAO extends SQSDAO {
     public PostStatusQueue1DAO(String region) {
-        super(region);
-
-        this.queueName = "PostStatusQueue1";
+        super(region, "PostStatusQueue1");
     }
 }

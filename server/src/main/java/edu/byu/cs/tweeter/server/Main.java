@@ -1,5 +1,7 @@
 package edu.byu.cs.tweeter.server;
 
+import com.amazonaws.services.dynamodbv2.xspec.S;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,13 +32,17 @@ public class Main {
     public static void main(String[] args) {
         factory = new AWSDAOFactory();
 
-        login();
+//        login();
 
 //        loadUsers(10000);
 //
 //        loadFollowers(getAllen(), 10000);
+
+//        getFollowerAliases(getAllen().getAlias());
+
+//        patchFollowers(getAllen(), 4400);
 //
-//        postStatus(1);
+        postStatus(8);
 
 //        for (Integer i = 0; i < 5; i++) {
 //            register(i.toString());
@@ -59,8 +65,30 @@ public class Main {
 //        getFeed();
     }
 
+    private static void patchFollowers(User followee, int batchStartIndex) {
+        List<User> followers = new ArrayList<>();
+        FollowDAO followDAO = factory.makeFollowDAO();
+
+        for (int i = batchStartIndex; i < batchStartIndex + 25; i++) {
+            User testUser = getTestUser(i);
+
+            followers.add(testUser);
+        }
+
+        followDAO.putFollowers(followee, followers);
+    }
+
+    private static void getFollowerAliases(String followeeAlias) {
+        FollowDAO followDAO = factory.makeFollowDAO();
+        List<String> followerAliases = followDAO.getFollowerAliases(followeeAlias);
+
+        for (String followerAlias: followerAliases) {
+            System.out.println(followerAlias);
+        }
+    }
+
     private static AuthToken getAuthToken() {
-        return new AuthToken("fb812c8f-1959-43b4-86e1-88ba578c955d", "Mar 28 2022 6:29 PM");
+        return new AuthToken("ec5fe0f8-8c5e-47bd-bf1a-7981a3cfab5a", "Apr 5 2022 7:14 PM");
     }
 
     private static void login() {
@@ -86,17 +114,22 @@ public class Main {
     private static void loadFollowers(User followee, int count) {
         List<User> followers = new ArrayList<>();
         FollowDAO followDAO = factory.makeFollowDAO();
+        UserDAO userDAO = factory.makeUserDAO();
 
         for (int i = 0; i < count; i++) {
-            followers.add(getTestUser(i));
+            User testUser = getTestUser(i);
+
+            followers.add(testUser);
+            userDAO.incrementFollowingCount(testUser.getAlias());
         }
 
         followDAO.putFollowers(followee, followers);
+        userDAO.setFollowerCount(followee.getAlias(), count);
     }
 
     private static void postStatus(int iteration) {
         String post = "post" + iteration;
-        User user = getTestUser(iteration);
+        User user = getAllen();
         String datetime = "Mar 2" + iteration + " 2022 " + iteration + ":0" + iteration + " PM";
         List<String> urls = new ArrayList<>();
         List<String> mentions = new ArrayList<>();
@@ -197,7 +230,7 @@ public class Main {
         System.out.println("isFollower: " + response.getIsFollower());
     }
 
-    private static void getFollowers() {
+    private static void getPagedFollowers() {
         User user = getTestUser(1);
         String followee = "@alias1";
         String follower = "@alias3";

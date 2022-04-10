@@ -13,21 +13,22 @@ import edu.byu.cs.tweeter.server.dao.QueueDAO;
 public abstract class SQSDAO implements QueueDAO {
     private final AmazonSQS sqs;
     protected String queueName;
-    protected String sqsURL;
+    protected String queueURL;
 
-    public SQSDAO(String region) {
+    public SQSDAO(String region, String queueName) {
         sqs = AmazonSQSClientBuilder.defaultClient();
-        sqsURL = "https://sqs." + region + ".amazonaws.com/406592857822";
+        queueURL = "https://sqs." + region + ".amazonaws.com/406592857822/" + queueName;
     }
 
     @Override
     public void sendToQueue(String requestJson) {
+        System.out.println("queueURL: " + getQueueURL());
         SendMessageRequest sendMessageRequest = new SendMessageRequest()
-                .withQueueUrl(getSqsURL())
+                .withQueueUrl(getQueueURL())
                 .withMessageBody(requestJson)
                 .withDelaySeconds(5);
 
-        System.out.println("Send message to " + getQueueName() + ":");
+        System.out.println("Send message to " + getQueueURL() + ":");
         System.out.println(requestJson);
 
         SendMessageResult sendMessageResult = sqs.sendMessage(sendMessageRequest);
@@ -40,7 +41,7 @@ public abstract class SQSDAO implements QueueDAO {
         return queueName;
     }
 
-    public String getSqsURL() {
-        return sqsURL;
+    public String getQueueURL() {
+        return queueURL;
     }
 }
