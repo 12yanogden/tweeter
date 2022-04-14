@@ -1,98 +1,192 @@
 package edu.byu.cs.tweeter.client.model.net;
 
-import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
-import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 
-import edu.byu.cs.tweeter.client.model.net.ServerFacade;
+import edu.byu.cs.tweeter.client.model.service.observerInterface.SimpleObserverInterface;
+import edu.byu.cs.tweeter.client.presenter.MainPresenter;
+import edu.byu.cs.tweeter.client.presenter.observer.MainObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
+import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
-import edu.byu.cs.tweeter.model.net.request.FollowCountRequest;
+import edu.byu.cs.tweeter.model.net.request.AuthenticateRequest;
 import edu.byu.cs.tweeter.model.net.request.PagedRequest;
-import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
 import edu.byu.cs.tweeter.model.net.response.AuthenticateResponse;
-import edu.byu.cs.tweeter.model.net.response.FollowCountResponse;
-import edu.byu.cs.tweeter.model.net.response.PagedUserResponse;
-import edu.byu.cs.tweeter.util.FakeData;
+import edu.byu.cs.tweeter.model.net.response.PagedStatusResponse;
 
 public class ServerFacadeTest {
+    private User allen;
+    private AuthToken authToken;
+    private String postMsg;
+    private String password;
+    private CountDownLatch countDownLatch;
     private ServerFacade serverFacade;
-    private RegisterRequest registerRequest;
-    private PagedRequest pagedRequest;
-    private FollowCountRequest followCountRequest;
-    private String registerUrlPath;
-    private String getFollowersUrlPath;
-    private String getFollowersCountUrlPath;
-    private FakeData fakeData;
+    private MainPresenter.MainView mockMainView;
+    private MainPresenter mainPresenter;
+    private PagedRequest getStoryRequest;
 
     @Before
     public void setup() {
+        allen = makeAllen();
+        password = "pass";
+        postMsg = makeUniquePost();
+
         serverFacade = new ServerFacade();
 
-        registerRequest = new RegisterRequest("first", "last", "@user", "pass", "image");
-        pagedRequest = new PagedRequest(new AuthToken(), "@allen", 10, "@elizabeth");
-        followCountRequest = new FollowCountRequest(new AuthToken(), "@allen");
+        mockMainView = Mockito.mock(MainPresenter.MainView.class);
+        mainPresenter = spy(new MainPresenter(mockMainView));
 
-        registerUrlPath = "/register";
-        getFollowersUrlPath = "/getfollowers";
-        getFollowersCountUrlPath = "/getfollowerscount";
-
-        fakeData = new FakeData();
+        resetCountDownLatch();
     }
 
     @Test
-    public void testRegister_validRequest_validResponse() {
+    public void testPostStatus_storyHasPostedStatus() {
+        //-------------------------------------------------------------------------------------//
+        //                                                                                     //
+        //                                        Login                                        //
+        //                                                                                     //
+        //-------------------------------------------------------------------------------------//
+        AuthenticateRequest request = new AuthenticateRequest(allen.getAlias(), password);
+        AuthenticateResponse response = new AuthenticateResponse(null, null);
+        String loginPath = "/login";
+
         try {
-            AuthenticateResponse response = serverFacade.request(registerRequest, registerUrlPath, AuthenticateResponse.class);
-            User expectedUser = fakeData.getFirstUser();
-
-            Assert.assertNotNull(response);
-            Assert.assertTrue(response.isSuccess());
-            Assert.assertTrue(expectedUser.equals(response.getUser()));
-            Assert.assertNotNull(response.getAuthToken());
-
+            response = serverFacade.request(request, loginPath, AuthenticateResponse.class);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
-    }
 
-    @Test
-    public void testGetFollowers_validRequest_validResponse() {
+        assertNotNull(response.getAuthToken());
+
+        authToken = response.getAuthToken();
+
+        when(mainPresenter.getCurrentAuthToken()).thenReturn(authToken);
+        when(mainPresenter.getCurrentUser()).thenReturn(allen);
+        when(mainPresenter.getPostStatusObserver()).thenReturn(new PostStatusObserver(mainPresenter, "post status"));
+
+        //-------------------------------------------------------------------------------------//
+        //                                                                                     //
+        //                                     Post Status                                     //
+        //                                                                                     //
+        //-------------------------------------------------------------------------------------//
+        String LOG_TAG = "testPostStatus";
+        String postingMsg = "Posting status...";
+        String successMsg = "Successfully Posted!";
+
         try {
-            PagedUserResponse response = serverFacade.request(pagedRequest, getFollowersUrlPath, PagedUserResponse.class);
-            boolean hasMorePages;
-            List<User> items;
-
-            Assert.assertNotNull(response);
-            Assert.assertTrue(response.isSuccess());
-            Assert.assertNull(response.getMessage());
-
-            hasMorePages = response.getHasMorePages();
-            items = response.getItems();
-
-            Assert.assertTrue(hasMorePages);
-            Assert.assertEquals(10, items.size());
+            mainPresenter.postStatus(postMsg, LOG_TAG);
+            awaitCountDownLatch();
         } catch (Exception e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
-    }
 
-    @Test
-    public void testGetFollowersCount_validRequest_validResponse() {
+        Mockito.verify(mockMainView).displayToast(eq(postingMsg));
+        Mockito.verify(mockMainView).displayPostStatusSuccess(eq(successMsg));
+
+        //-------------------------------------------------------------------------------------//
+        //                                                                                     //
+        //                                      Get Story                                      //
+        //                                                                                     //
+        //-------------------------------------------------------------------------------------//
+        getStoryRequest = new PagedRequest(authToken, allen.getAlias(), 10, null, null);
+        PagedStatusResponse getStoryResponse = new PagedStatusResponse("placeholder");
+        String getStoryPath = "/getstory";
+
         try {
-            FollowCountResponse response = serverFacade.request(followCountRequest, getFollowersCountUrlPath, FollowCountResponse.class);
-
-            Assert.assertNotNull(response);
-            Assert.assertTrue(response.isSuccess());
-            Assert.assertEquals(21, response.getCount()); // Extra 1 expected, 20 shows in app
-
+            getStoryResponse = serverFacade.request(getStoryRequest, getStoryPath, PagedStatusResponse.class);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
+        }
+
+        assertNotNull(getStoryResponse);
+        assertTrue(getStoryResponse.isSuccess());
+
+        Status mostRecentItem = getStoryResponse.getItems().get(0);
+
+        assertTrue(allen.equals(mostRecentItem.getUser()));
+        assertNotNull(mostRecentItem.getDate());
+        assertTrue(postMsg.equals(mostRecentItem.getPost()));
+        assertNotNull(mostRecentItem.getMentions());
+        assertTrue(mostRecentItem.getMentions().isEmpty());
+        assertTrue(mostRecentItem.getUrls().isEmpty());
+    }
+
+    private String makeUniquePost() {
+        return UUID.randomUUID().toString();
+    }
+
+    private User makeAllen() {
+        return new User("Allen",
+                "Anderson",
+                "@allen",
+                "https://ogden9-tweeter.s3.us-west-2.amazonaws.com/donald_duck.png");
+    }
+
+    private void resetCountDownLatch() {
+        countDownLatch = new CountDownLatch(1);
+    }
+
+    private void awaitCountDownLatch() throws InterruptedException {
+        countDownLatch.await();
+        resetCountDownLatch();
+    }
+
+    /**
+     * A {@link MainObserver} implementation that can be used to get the values
+     * eventually returned by an asynchronous call on the {@link PostStatusObserver}. Counts down
+     * on the countDownLatch so tests can wait for the background thread to call a method on the
+     * observer.
+     */
+    private class PostStatusObserver extends MainObserver implements SimpleObserverInterface {
+        private boolean success;
+        private String message;
+        private Exception exception;
+
+        public PostStatusObserver(MainPresenter presenter, String description) {
+            super(presenter, description);
+        }
+
+        @Override
+        public void handleSuccess() {
+            this.success = true;
+            this.message = null;
+            this.exception = null;
+
+            getPresenter().getView().displayPostStatusSuccess("Successfully Posted!");
+
+            countDownLatch.countDown();
+        }
+
+        @Override
+        public void handleFailure(String message) {
+            this.success = false;
+            this.message = message;
+            this.exception = null;
+
+            countDownLatch.countDown();
+        }
+
+        @Override
+        public void handleException(Exception exception) {
+            this.success = false;
+            this.message = null;
+            this.exception = exception;
+
+            countDownLatch.countDown();
         }
     }
 }

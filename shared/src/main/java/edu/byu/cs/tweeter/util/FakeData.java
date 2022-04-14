@@ -58,7 +58,7 @@ public class FakeData {
     /**
      * Generated auth token.
      */
-    private static final AuthToken authToken = new AuthToken(); // TODO: UUID to generate random string
+    private static final AuthToken authToken = new AuthToken();
 
     /**
      * List of generated users.

@@ -43,6 +43,8 @@ public class DynamoDBStoryDAO extends DynamoDBDAO implements StoryDAO {
 
     @Override
     public void putItem(Status status) {
+        System.out.println("Enter DynamoDBStoryDAO.putItem()");
+        System.out.println("status: " + status.toString());
         Item item = new Item()
                 .withPrimaryKey(
                         getAliasAttr(),
@@ -63,6 +65,7 @@ public class DynamoDBStoryDAO extends DynamoDBDAO implements StoryDAO {
                 .withString(getImageURLAttr(),
                         status.getUser().getImageUrl());
 
+        System.out.println("Item constructed");
         getDynamoDB().putItemInTable(getItemType(), item, getTable());
     }
 

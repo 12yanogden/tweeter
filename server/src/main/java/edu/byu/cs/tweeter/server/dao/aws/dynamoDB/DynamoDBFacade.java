@@ -32,6 +32,7 @@ public class DynamoDBFacade {
     }
 
     public PutItemOutcome putItemInTable(String itemType, Item item, Table table) {
+        System.out.println("Enter putItemInTable");
         PutItemOutcome outcome;
 
         try {

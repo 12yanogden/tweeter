@@ -12,12 +12,14 @@ import java.util.concurrent.Executors;
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.FollowService;
 import edu.byu.cs.tweeter.client.model.service.StatusService;
+import edu.byu.cs.tweeter.client.model.service.observerInterface.SimpleObserverInterface;
 import edu.byu.cs.tweeter.client.presenter.observer.FollowUnfollowObserver;
 import edu.byu.cs.tweeter.client.presenter.observer.GetFollowersCountObserver;
 import edu.byu.cs.tweeter.client.presenter.observer.GetFollowingCountObserver;
 import edu.byu.cs.tweeter.client.presenter.observer.IsFollowerObserver;
 import edu.byu.cs.tweeter.client.presenter.observer.LogoutObserver;
 import edu.byu.cs.tweeter.client.presenter.observer.PostStatusObserver;
+import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
@@ -67,16 +69,24 @@ public class MainPresenter extends ViewPresenter {
         try {
             getView().displayToast("Posting status...");
 
-            Status status = new Status(post, Cache.getInstance().getCurrUser(), getFormattedDateTime(), parseURLs(post), parseMentions(post));
+            Status status = new Status(post, getCurrentUser(), getFormattedDateTime(), parseURLs(post), parseMentions(post));
 
-            getStatusService().postStatus(status, Cache.getInstance().getCurrUserAuthToken(), getPostStatusObserver());
+            getStatusService().postStatus(status, getCurrentAuthToken(), getPostStatusObserver());
         } catch (Exception exception) {
 //            Log.e(LOG_TAG, exception.getMessage(), exception);
             getView().displayToast("Failed to post the status because of exception: " + exception.getMessage());
         }
     }
 
-    protected PostStatusObserver getPostStatusObserver() {
+    public User getCurrentUser() {
+        return Cache.getInstance().getCurrUser();
+    }
+
+    public AuthToken getCurrentAuthToken() {
+        return Cache.getInstance().getCurrUserAuthToken();
+    }
+
+    public SimpleObserverInterface getPostStatusObserver() {
         return new PostStatusObserver(this, "post status");
     }
 

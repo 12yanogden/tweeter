@@ -11,8 +11,10 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.sql.SQLType;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.Status;
@@ -44,7 +46,7 @@ public class StatusServiceTest {
     public void testGetStory_GetStoryReturnsPagedStatuses() {
         AuthToken authToken = new AuthToken();
         String ownerAlias = "ownerAlias";
-        int limit = 10;
+        int limit = calcRandomLimit();
         String lastItemAlias = "lastItemAlias";
         String lastItemDateTime = "lastItemDateTime";
         PagedRequest request = new PagedRequest(authToken, ownerAlias, limit, lastItemAlias, lastItemDateTime);
@@ -52,10 +54,15 @@ public class StatusServiceTest {
         PagedStatusResponse response;
         List<Status> items;
 
-        Mockito.doAnswer(queryStoryAnswer).when(mockStoryDAO).queryStory(Mockito.anyString(), Mockito.anyInt(), Mockito.any());
+        Mockito.doAnswer(queryStoryAnswer).when(mockStoryDAO).queryStory(eq(ownerAlias), eq(limit), Mockito.any());
         response = statusService.getStory(request);
         items = response.getItems();
 
+        //-------------------------------------------------------------------------------------//
+        //                                                                                     //
+        //                                        Tests                                        //
+        //                                                                                     //
+        //-------------------------------------------------------------------------------------//
         Mockito.verify(mockStoryDAO).queryStory(eq(ownerAlias), eq(limit), Mockito.any());
         assertEquals(limit, items.size());
         assertFalse(response.getHasMorePages());
@@ -101,5 +108,16 @@ public class StatusServiceTest {
                 "last" + iteration,
                 ownerAlias,
                 "imageURL" + iteration);
+    }
+
+    private int calcRandomLimit() {
+        Random r = new Random();
+        int max = 10;
+        int min = 2;
+        int limit = r.nextInt((max - min) + 1) + min;
+
+        System.out.println("limit: " + limit);
+
+        return limit;
     }
 }

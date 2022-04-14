@@ -10,30 +10,41 @@ import edu.byu.cs.tweeter.server.dao.AuthTokenDAO;
 import edu.byu.cs.tweeter.server.dao.DAOFactory;
 
 public abstract class AuthTokenService extends FactoryService {
-    private AuthTokenDAO authTokenDAO;
-    private String invalidTokenMsg;
-    private int expirationInMins;
-    private String dateTimePattern;
+    private final AuthTokenDAO authTokenDAO;
+    private final String invalidTokenMsg;
+    private final int expirationInMins;
+    private final String dateTimePattern;
 
     public AuthTokenService(DAOFactory factory) {
         super(factory);
 
         authTokenDAO = factory.makeAuthTokenDAO();
-        invalidTokenMsg = "authToken has expired";
+        invalidTokenMsg = "The authToken is invalid";
         expirationInMins = 30;
         dateTimePattern = "MMM d yyyy h:mm a";
     }
 
     protected boolean validateAuthToken(AuthToken clientAuthToken) {
-        long clientEpoch = dateTimeToEpoch(clientAuthToken.getDatetime());
-        long expiresEpoch = incrementEpochByMins(clientEpoch, getExpirationInMins());
-        long currentEpoch = dateTimeToEpoch(calcCurrentDateTime());
+        System.out.println("Enter AuthTokenService.validateAuthToken");
         boolean isValid = true;
 
-        if (currentEpoch > expiresEpoch) {
-            getAuthTokenDAO().deleteAuthToken(clientAuthToken.getToken());
+        if (clientAuthToken == null) {
+            System.out.println("authToken is null");
 
             isValid = false;
+        } else {
+            long clientEpoch = dateTimeToEpoch(clientAuthToken.getDatetime());
+            long expiresEpoch = incrementEpochByMins(clientEpoch, getExpirationInMins());
+            long currentEpoch = dateTimeToEpoch(calcCurrentDateTime());
+
+
+            if (currentEpoch > expiresEpoch) {
+                System.out.println("authToken has expired");
+
+                getAuthTokenDAO().deleteAuthToken(clientAuthToken.getToken());
+
+                isValid = false;
+            }
         }
 
         return isValid;

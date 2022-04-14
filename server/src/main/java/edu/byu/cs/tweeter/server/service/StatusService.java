@@ -34,12 +34,17 @@ public class StatusService extends AuthTokenService {
         PagedStatusResponse response;
 
         if (validateAuthToken(request.getAuthToken())) {
+            System.out.println("authToken valid");
+            System.out.println("requestAlias: " + request.getTargetUserAlias());
+            System.out.println("requestDateTime: " + request.getDateTime());
             Pair<String, String> lastItemId = new Pair<>(request.getAlias(), request.getDateTime());
             Pair<List<Status>, Boolean> queryResponse = getStoryDAO().queryStory(request.getTargetUserAlias(), request.getLimit(), lastItemId);
 
             response = new PagedStatusResponse(queryResponse.getFirst(), queryResponse.getSecond());
 
         } else {
+            System.out.println("authToken invalid");
+            System.out.println("authToken: " + request.getAuthToken().toString());
             response = new PagedStatusResponse(getInvalidTokenMsg());
         }
 
@@ -63,6 +68,7 @@ public class StatusService extends AuthTokenService {
     }
 
     public Response postStatus(PostStatusRequest request) {
+        System.out.println("Enter StatusService.postStatus");
         Response response;
 
         if (validateAuthToken(request.getAuthToken())) {
@@ -70,7 +76,7 @@ public class StatusService extends AuthTokenService {
 
             getStoryDAO().putItem(request.getStatus());
 
-            getPostStatusQueuesService().getPostStatusQueue1DAO().sendToQueue(requestJson);
+//            getPostStatusQueuesService().getPostStatusQueue1DAO().sendToQueue(requestJson); TODO: Uncomment to activate SQS (to get the user's followers and post in their feeds)
 
             response = new Response(true);
 

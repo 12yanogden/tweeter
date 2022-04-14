@@ -1,9 +1,8 @@
 package edu.byu.cs.tweeter.server;
 
-import com.amazonaws.services.dynamodbv2.xspec.S;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.Status;
@@ -15,12 +14,13 @@ import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
 import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
 import edu.byu.cs.tweeter.model.net.response.AuthenticateResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
+import edu.byu.cs.tweeter.model.net.response.PagedResponse;
 import edu.byu.cs.tweeter.model.net.response.PagedStatusResponse;
 import edu.byu.cs.tweeter.model.net.response.PagedUserResponse;
 import edu.byu.cs.tweeter.server.dao.FollowDAO;
 import edu.byu.cs.tweeter.server.dao.UserDAO;
 import edu.byu.cs.tweeter.server.dao.aws.AWSDAOFactory;
-import edu.byu.cs.tweeter.server.dao.aws.dynamoDB.DynamoDBUserDAO;
+import edu.byu.cs.tweeter.server.lambda.status.GetStoryHandler;
 import edu.byu.cs.tweeter.server.service.AuthenticateService;
 import edu.byu.cs.tweeter.server.service.FollowService;
 import edu.byu.cs.tweeter.server.service.StatusService;
@@ -42,7 +42,9 @@ public class Main {
 
 //        patchFollowers(getAllen(), 4400);
 //
-        postStatus(8);
+        postStatus(1);
+
+//        register(getAllen());
 
 //        for (Integer i = 0; i < 5; i++) {
 //            register(i.toString());
@@ -63,6 +65,12 @@ public class Main {
 //        }
 
 //        getFeed();
+
+//        getStory(getAllen());
+    }
+
+    private static void registerAllen() {
+
     }
 
     private static void patchFollowers(User followee, int batchStartIndex) {
@@ -88,7 +96,7 @@ public class Main {
     }
 
     private static AuthToken getAuthToken() {
-        return new AuthToken("ec5fe0f8-8c5e-47bd-bf1a-7981a3cfab5a", "Apr 5 2022 7:14 PM");
+        return new AuthToken("1ad75190-8d9c-4b50-89db-f39acdc9d17e", "Apr 13 2022 5:41 PM");
     }
 
     private static void login() {
@@ -128,7 +136,7 @@ public class Main {
     }
 
     private static void postStatus(int iteration) {
-        String post = "post" + iteration;
+        String post = UUID.randomUUID().toString();
         User user = getAllen();
         String datetime = "Mar 2" + iteration + " 2022 " + iteration + ":0" + iteration + " PM";
         List<String> urls = new ArrayList<>();
@@ -141,9 +149,13 @@ public class Main {
         service.postStatus(request);
     }
 
-    private static void register(int iteration) {
+    private static void registerTests(int iteration) {
         User user = getTestUser(iteration);
 
+        register(user);
+    }
+
+    private static void register(User user) {
         RegisterRequest registerRequest = new RegisterRequest(user.getFirstName(),
                 user.getLastName(),
                 user.getAlias(),
@@ -203,14 +215,13 @@ public class Main {
         service.unfollow(request);
     }
 
-    private static void getStory() {
-        User user = getTestUser(1);
+    private static void getStory(User user) {
         String alias = "@alias1";
         String dateTime = "Mar 24 2022 10:07 PM";
 
-        PagedRequest request = new PagedRequest(getAuthToken(), user.getAlias(), 2, alias, dateTime);
-        StatusService service = new StatusService(factory);
-        PagedStatusResponse response = service.getStory(request);
+        PagedRequest request = new PagedRequest(getAuthToken(), user.getAlias(), 10, null, null);
+        GetStoryHandler handler = new GetStoryHandler();
+        PagedResponse<Status> response = handler.handleRequest(request, null);
 
         for (Status item: response.getItems()) {
             System.out.println(item);
@@ -277,4 +288,6 @@ public class Main {
 
         System.out.println("hasMorePages: " + response.getHasMorePages());
     }
+
+
 }
