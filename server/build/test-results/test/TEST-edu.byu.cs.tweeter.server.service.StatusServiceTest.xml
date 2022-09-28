@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="edu.byu.cs.tweeter.server.service.StatusServiceTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2022-04-14T01:19:30" hostname="Artemis.local" time="5.904">
+  <properties/>
+  <testcase name="testGetStory_GetStoryReturnsPagedStatuses" classname="edu.byu.cs.tweeter.server.service.StatusServiceTest" time="5.904"/>
+  <system-out><![CDATA[limit: 2
+Enter AuthTokenService.validateAuthToken
+authToken valid
+requestAlias: ownerAlias
+requestDateTime: lastItemDateTime
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
