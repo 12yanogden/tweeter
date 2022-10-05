@@ -14,7 +14,7 @@ import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class StatusService extends ModelService {
-    public void getFeed(AuthToken authToken, User user, int pageSize, Status lastStatus, PagedObserver<Status> observer) { // TODO: Is there duplication here?
+    public void getFeed(AuthToken authToken, User user, int pageSize, Status lastStatus, PagedObserver<Status> observer) {
         GetFeedTask getFeedTask = new GetFeedTask(authToken, user, pageSize, lastStatus, new PagedHandler<>(observer));
 
         execute(getFeedTask);

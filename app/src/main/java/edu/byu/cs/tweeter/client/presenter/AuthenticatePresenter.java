@@ -9,7 +9,6 @@ public abstract class AuthenticatePresenter extends ViewPresenter {
     }
 
     protected AuthenticateView view;
-    protected UserService userService;
 
     public AuthenticatePresenter(AuthenticateView view) {
         this.view = view;
@@ -17,6 +16,7 @@ public abstract class AuthenticatePresenter extends ViewPresenter {
         this.userService = new UserService();
     }
 
+    @Override
     public AuthenticateView getView() {
         return this.view;
     }
