@@ -33,7 +33,7 @@ public class MainPresenter extends ViewPresenter {
     }
 
     private final MainView view;
-    private final FollowService followService; // TODO: Is this duplication?
+    private final FollowService followService;
     private final StatusService statusService;
 
     public MainPresenter (MainView view) {
