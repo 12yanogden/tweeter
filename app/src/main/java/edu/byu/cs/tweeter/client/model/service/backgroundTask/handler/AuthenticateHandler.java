@@ -15,7 +15,7 @@ public class AuthenticateHandler extends BackgroundTaskHandler<AuthenticateObser
 
     @Override
     protected void handleSuccess(Bundle data, AuthenticateObserver observer) {
-        User user = (User) data.getSerializable(LoginTask.USER_KEY);
+        User user = (User) data.getSerializable(AuthenticateTask.USER_KEY);
         AuthToken authToken = (AuthToken) data.getSerializable(AuthenticateTask.AUTH_TOKEN_KEY);
 
         observer.handleSuccess(user, authToken);

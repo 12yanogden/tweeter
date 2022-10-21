@@ -41,6 +41,11 @@ public class MainPresenterUnitTest {
         postMsg = "testPost";
     }
 
+    //-------------------------------------------------------------------------------------//
+    //                                                                                     //
+    //                                        Tests                                        //
+    //                                                                                     //
+    //-------------------------------------------------------------------------------------//
     @Test
     public void testPostStatus_handleSuccess() {
         try {
@@ -82,6 +87,13 @@ public class MainPresenterUnitTest {
         Mockito.verify(mockMainView).displayToast("Failed to post status because of exception: " + msg);
     }
 
+    //-------------------------------------------------------------------------------------//
+    //                                                                                     //
+    //                                       Answers                                       //
+    //                                                                                     //
+    //-------------------------------------------------------------------------------------//
+
+    //----------------------------------- Abstractions ------------------------------------//
     private abstract class PostStatusAnswer implements Answer<Void> {
         @Override
         public Void answer(InvocationOnMock invocation) throws Throwable {
@@ -95,18 +107,19 @@ public class MainPresenterUnitTest {
         protected abstract void handleCustom(PostStatusObserver observer);
     }
 
-    private class PostStatusSuccessAnswer extends PostStatusAnswer {
-        @Override
-        protected void handleCustom(PostStatusObserver observer) {
-            observer.handleSuccess();
-        }
-    }
-
     private abstract class PostStatusMessageAnswer extends PostStatusAnswer {
         protected String msg;
 
         public PostStatusMessageAnswer(String msg) {
             this.msg = msg;
+        }
+    }
+
+    //------------------------------------ Concretions ------------------------------------//
+    private class PostStatusSuccessAnswer extends PostStatusAnswer {
+        @Override
+        protected void handleCustom(PostStatusObserver observer) {
+            observer.handleSuccess();
         }
     }
 
@@ -132,6 +145,11 @@ public class MainPresenterUnitTest {
         }
     }
 
+    //-------------------------------------------------------------------------------------//
+    //                                                                                     //
+    //                                   mockPostStatus                                    //
+    //                                                                                     //
+    //-------------------------------------------------------------------------------------//
     private <A extends PostStatusAnswer> void mockPostStatus(A answer) {
         Mockito.doAnswer(answer).when(mockStatusService).postStatus(Mockito.any(), Mockito.any(), Mockito.any());
         spyMainPresenter.postStatus("testPost", "MainActivity");
