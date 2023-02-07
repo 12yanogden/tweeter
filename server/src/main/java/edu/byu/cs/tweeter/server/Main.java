@@ -34,7 +34,7 @@ public class Main {
 
 //        login();
 
-//        loadUsers(10000);
+        loadUsers(10000);
 //
 //        loadFollowers(getAllen(), 10000);
 

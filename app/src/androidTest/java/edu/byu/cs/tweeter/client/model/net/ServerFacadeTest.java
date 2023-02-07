@@ -52,11 +52,11 @@ public class ServerFacadeTest {
 
     @Test
     public void testPostStatus_storyHasPostedStatus() {
-        //-------------------------------------------------------------------------------------//
-        //                                                                                     //
-        //                                        Login                                        //
-        //                                                                                     //
-        //-------------------------------------------------------------------------------------//
+        /*─────────────────────────────────────────────────────────────────────────────────────*\
+        │                                                                                       │
+        │                                         Login                                         │
+        │                                                                                       │
+        \*─────────────────────────────────────────────────────────────────────────────────────*/
         AuthenticateRequest request = new AuthenticateRequest(allen.getAlias(), password);
         AuthenticateResponse response = new AuthenticateResponse(null, null);
         String loginPath = "/login";
@@ -76,11 +76,11 @@ public class ServerFacadeTest {
         when(mainPresenter.getCurrentUser()).thenReturn(allen);
         when(mainPresenter.getPostStatusObserver()).thenReturn(new PostStatusObserver(mainPresenter, "post status"));
 
-        //-------------------------------------------------------------------------------------//
-        //                                                                                     //
-        //                                     Post Status                                     //
-        //                                                                                     //
-        //-------------------------------------------------------------------------------------//
+        /*─────────────────────────────────────────────────────────────────────────────────────*\
+        │                                                                                       │
+        │                                      Post Status                                      │
+        │                                                                                       │
+        \*─────────────────────────────────────────────────────────────────────────────────────*/
         String LOG_TAG = "testPostStatus";
         String postingMsg = "Posting status...";
         String successMsg = "Successfully Posted!";
@@ -96,11 +96,11 @@ public class ServerFacadeTest {
         Mockito.verify(mockMainView).displayToast(eq(postingMsg));
         Mockito.verify(mockMainView).displayPostStatusSuccess(eq(successMsg));
 
-        //-------------------------------------------------------------------------------------//
-        //                                                                                     //
-        //                                      Get Story                                      //
-        //                                                                                     //
-        //-------------------------------------------------------------------------------------//
+        /*─────────────────────────────────────────────────────────────────────────────────────*\
+        │                                                                                       │
+        │                                       Get Story                                       │
+        │                                                                                       │
+        \*─────────────────────────────────────────────────────────────────────────────────────*/
         getStoryRequest = new PagedRequest(authToken, allen.getAlias(), 10, null, null);
         PagedStatusResponse getStoryResponse = new PagedStatusResponse("placeholder");
         String getStoryPath = "/getstory";
